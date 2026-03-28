@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUnker-6 | Stories & Comments</title>
+    <style>
+        @font-face { 
+            font-family: 'Warface'; 
+            src: url('img/Warface.ttf') format('truetype'); 
+            font-display: swap;
+        }
+        @font-face { 
+            font-family: 'Wolfenstein'; 
+            src: url('img/wolfenstein.ttf') format('truetype'); 
+            font-display: swap;
+        }
+
+        :root {
+            --yellow: #ffcc00; 
+            --black: #000000; 
+            --white: #ffffff; 
+            --red: #ff4444;
+            --danger-stripe: repeating-linear-gradient(45deg, #ffcc00, #ffcc00 20px, #000 20px, #000 40px);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            background: var(--black); 
+            color: var(--white); 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+            font-family: sans-serif; 
+            position: relative;
+            cursor: none !important; 
+        }
+
+        /* --- КУРСОР --- */
+        #custom-cursor {
+            width: 32px; height: 32px;
+            background-image: url('img/aim.png'); 
+            background-size: contain; background-repeat: no-repeat;
+            position: fixed; pointer-events: none; z-index: 2147483647;
+            transform: translate(-50%, -50%); opacity: 0; 
+            transition: opacity 0.1s ease;
+            animation: cursorPulse 1.5s infinite ease-in-out;
+        }
+        @keyframes cursorPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; filter: drop-shadow(0 0 5px var(--yellow)); }
+        }
+
+        button, a, input, textarea, select, label { cursor: none !important; }
+
+        /* --- ДЕКОР --- */
+        body::before, body::after {
+            content: ""; position: fixed; top: 0; width: 45px; height: 100%;
+            background: var(--danger-stripe); z-index: 5000; opacity: 0.4;
+            clip-path: polygon(0% 0%, 100% 0%, 80% 15%, 100% 30%, 70% 45%, 90% 60%, 65% 75%, 100% 90%, 0% 100%);
+        }
+        body::before { left: -15px; }
+        body::after { right: -15px; transform: scaleX(-1); }
+
+        /* --- ШАПКА --- */
+        header { 
+            background: #000; display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 5%; position: sticky; top: 0; z-index: 1000; 
+            border-bottom: 5px solid var(--yellow); height: 110px; 
+        }
+        header::before { 
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 6px; 
+            background: var(--danger-stripe); background-size: 56.5px 100%; 
+            animation: moveStripes 1.2s linear infinite; 
+        }
+        @keyframes moveStripes { from { background-position: 0 0; } to { background-position: 56.5px 0; } }
+        
+        .left-side { display: flex; align-items: center; height: 100%; }
+        .header-pic { height: 70px; width: auto; object-fit: contain; }
+        .logo-area { display: flex; flex-direction: column; margin-left: 15px; }
+
+        .logo { 
+            font-family: 'Wolfenstein', serif !important; 
+            color: #ffffff !important; 
+            font-size: clamp(1.8rem, 5vw, 3.5rem); 
+            text-transform: uppercase; line-height: 1; letter-spacing: 2px; 
+        }
+        
+        .header-right { display: flex; align-items: center; gap: 20px; }
+
+        .btn-action {
+            font-family: 'Warface', sans-serif !important;
+            background: none; border: 2px solid var(--yellow);
+            color: var(--yellow); padding: 10px 20px; font-size: 0.8rem;
+            transition: 0.3s; display: inline-block; text-align: center;
+        }
+        .btn-action:hover { background: var(--yellow); color: #000; }
+        .btn-write { border-color: var(--red); color: var(--red); }
+        .btn-write:hover { background: var(--red); color: #fff; }
+
+        /* --- КОНТЕНТ --- */
+        main { padding: 40px 8%; max-width: 900px; margin: 0 auto; }
+
+        .post-form {
+            background: #0a0a0a; border: 2px solid var(--yellow); padding: 25px;
+            margin-bottom: 40px; display: none;
+        }
+        .post-form.active { display: block; animation: fadeIn 0.3s; }
+
+        input, textarea, select {
+            width: 100%; background: #000; border: 1px solid #333;
+            color: #fff; padding: 12px; margin-bottom: 15px;
+        }
+
+        .stories-grid { display: flex; flex-direction: column; gap: 30px; }
+        
+        .story-card {
+            background: #050505; border: 1px solid #222; padding: 20px;
+            transition: 0.3s; word-wrap: break-word; position: relative;
+        }
+        .story-card:hover { border-color: var(--yellow); }
+
+        .story-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .avatar-container { width: 40px; height: 40px; border: 1px solid var(--yellow); overflow: hidden; flex-shrink: 0; }
+        .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- КОММЕНТЫ --- */
+        .comment-section { margin-top: 15px; padding-left: 20px; border-left: 2px solid #222; }
+        .comment-item { background: #080808; padding: 10px; margin-top: 10px; border: 1px solid #1a1a1a; }
+        .comment-form { display: none; margin-top: 15px; background: #0d0d0d; padding: 15px; border: 1px dashed var(--yellow); }
+        .comment-form.active { display: block; }
+
+        .btn-reply { font-size: 0.6rem; padding: 5px 10px; margin-top: 10px; border-color: #555; color: #888; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            header { height: auto; padding: 20px 5%; flex-direction: column; gap: 20px; }
+            #custom-cursor { display: none; }
+            body { cursor: auto !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="custom-cursor"></div>
+
+    <header>
+        <div class="left-side">
+            <img src="img/panzer.png" alt="Logo" class="header-pic">
+            <div class="logo-area"><div class="logo">BUnker-6</div></div>
+        </div>
+        <div class="header-right">
+            <button class="btn-action btn-write" onclick="toggleForm()">+ НАПИСАТЬ</button>
+            <button class="btn-action" style="border-color:#444; color:#444;" onclick="clearBunker()">ОЧИСТИТЬ</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="post-form" id="postForm">
+            <h2 style="font-family:'Warface'; color:var(--yellow); margin-bottom:15px;">НОВАЯ ЗАПИСЬ</h2>
+            <input type="text" id="userName" placeholder="Ваш позывной (пусто — анонимно)">
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
+                <select id="userAvatar" style="width:auto; margin-bottom:0;">
+                    <option value="img/av1.png">Боец</option>
+                    <option value="img/av2.png">Медик</option>
+                    <option value="custom">Своя аватарка...</option>
+                </select>
+                <input type="file" id="fileInput" accept="image/*" style="display:none;">
+                <label id="fileLabel" for="fileInput" class="btn-action" style="display:none; padding:8px 15px; font-size:0.7rem;">ВЫБРАТЬ</label>
+            </div>
+            <textarea id="userText" rows="4" placeholder="Текст сообщения..."></textarea>
+            <button class="btn-action" style="width:100%; background:var(--yellow); color:#000;" onclick="addPost()">ОТПРАВИТЬ В БУНКЕР</button>
+        </section>
+
+        <div class="stories-grid" id="storyFeed"></div>
+    </main>
+
+    <script>
+        // КУРСОР
+        const cursor = document.getElementById('custom-cursor');
+        document.addEventListener('mousemove', e => {
+            cursor.style.opacity = '1';
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        function toggleForm() { document.getElementById('postForm').classList.toggle('active'); }
+
+        document.getElementById('userAvatar').addEventListener('change', function() {
+            document.getElementById('fileLabel').style.display = (this.value === 'custom') ? 'block' : 'none';
+        });
+
+        const toBase64 = file => new Promise((res, rej) => {
+            const r = new FileReader(); r.readAsDataURL(file);
+            r.onload = () => res(r.result); r.onerror = e => rej(e);
+        });
+
+        // ОСНОВНАЯ ЛОГИКА
+        async function addPost() {
+            const name = document.getElementById('userName').value.trim() || "Аноним";
+            const text = document.getElementById('userText').value.trim();
+            const avSel = document.getElementById('userAvatar').value;
+            const fInp = document.getElementById('fileInput');
+
+            if(!text) return alert("Введите текст!");
+
+            let av = avSel;
+            if(avSel === 'custom' && fInp.files[0]) av = await toBase64(fInp.files[0]);
+            else if(avSel === 'custom') av = 'img/av1.png';
+
+            const post = {
+                id: Date.now(),
+                name, text, av,
+                date: new Date().toLocaleString(),
+                comments: []
+            };
+
+            const saved = JSON.parse(localStorage.getItem('bunker_db') || "[]");
+            saved.unshift(post);
+            localStorage.setItem('bunker_db', JSON.stringify(saved));
+
+            document.getElementById('userText').value = "";
+            toggleForm();
+            render();
+        }
+
+        function toggleComm(id) { document.getElementById(`cform-${id}`).classList.toggle('active'); }
+
+        function addComment(id) {
+            const name = document.getElementById(`cn-${id}`).value.trim() || "Аноним";
+            const text = document.getElementById(`ct-${id}`).value.trim();
+            if(!text) return alert("Введите ответ!");
+
+            const saved = JSON.parse(localStorage.getItem('bunker_db') || "[]");
+            const p = saved.find(item => item.id === id);
+            if(p) {
+                p.comments.push({ name, text, date: new Date().toLocaleString() });
+                localStorage.setItem('bunker_db', JSON.stringify(saved));
+                render();
+            }
+        }
+
+        function clearBunker() {
+            if(confirm("Удалить все записи?")) {
+                localStorage.removeItem('bunker_db');
+                render();
+            }
+        }
+
+        function render() {
+            const feed = document.getElementById('storyFeed');
+            const saved = JSON.parse(localStorage.getItem('bunker_db') || "[]");
+
+            if(saved.length === 0) {
+                feed.innerHTML = `<p style="text-align:center; color:#444; font-family:'Warface'; margin-top:50px;">БУНКЕР ПУСТ. ЖДЕМ ДОНЕСЕНИЙ...</p>`;
+                return;
+            }
+
+            feed.innerHTML = saved.map(s => `
+                <div class="story-card">
+                    <div class="story-header">
+                        <div class="avatar-container">
+                            <img src="${s.av}" onerror="this.src='https://via.placeholder.com/40/333'">
+                        </div>
+                        <span style="font-family:'Warface'; color:var(--yellow); font-size:0.8rem;">${s.name}</span>
+                    </div>
+                    <p style="color:#ccc; font-size:0.9rem; line-height:1.4;">${s.text}</p>
+                    <div style="font-size:0.6rem; color:#444; margin-top:10px; font-family:'Warface';">LOG: ${s.date}</div>
+                    
+                    <button class="btn-action btn-reply" onclick="toggleComm(${s.id})">ОТВЕТИТЬ</button>
+
+                    <div class="comment-form" id="cform-${s.id}">
+                        <input type="text" id="cn-${s.id}" placeholder="Имя (анонимно)" style="font-size:0.7rem;">
+                        <textarea id="ct-${s.id}" placeholder="Текст ответа..." rows="2" style="font-size:0.8rem;"></textarea>
+                        <button class="btn-action" style="width:100%; padding:5px;" onclick="addComment(${s.id})">ОТПРАВИТЬ</button>
+                    </div>
+
+                    <div class="comment-section">
+                        ${s.comments.map(c => `
+                            <div class="comment-item">
+                                <div style="font-family:'Warface'; color:var(--yellow); font-size:0.7rem;">${c.name}</div>
+                                <div style="color:#bbb; font-size:0.8rem; margin:5px 0;">${c.text}</div>
+                                <div style="font-size:0.5rem; color:#333;">${c.date}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.onload = render;
+    </script>
+</body>
+</html>
