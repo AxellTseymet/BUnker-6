@@ -29,7 +29,6 @@
             color: var(--text); 
             min-height: 100vh; 
             overflow-x: hidden;
-            /* ДОБАВЛЕНО: Отступы от боковых лент */
             padding-left: 15px;
             padding-right: 15px;
         } 
@@ -85,11 +84,9 @@
         header { 
             background: var(--bg); display: flex; justify-content: space-between; align-items: center; 
             padding: 0 5%; position: sticky; 
-            /* ДОБАВЛЕНО: Отступ от верхней ленты */
             top: 15px; 
             z-index: 1000; 
             border-bottom: 4px solid var(--accent); height: 90px; 
-            /* УБРАНО: margin-top: 15px; (заменено на top: 15px) */
         }
 
         .logo { font-family: 'Wolfenstein', serif !important; font-size: 2.2rem; color: var(--text); }
@@ -103,7 +100,6 @@
         .btn-action:hover { background: var(--accent); color: var(--bg); }
 
         main { 
-            /* ИЗМЕНЕНО: Отступы для контента */
             padding: 20px 0; 
             max-width: 850px; 
             margin: 0 auto; 
@@ -137,31 +133,27 @@
         @media (max-width: 480px) {
             header { 
                 height: 70px; 
-                padding: 0 5px; /* Минимальные боковые поля внутри хедера */
-                /* ИЗМЕНЕНО: top остается 15px, но убираем внешние отступы, если были */
+                padding: 0 5px
                 margin-top: 0;
             }
             .header-pic { 
-                height: 35px; /* Уменьшаем картинку танка */
+                height: 35px;
                 margin-right: 3px; 
             }
             .logo { 
-                /* ИЗМЕНЕНО: Увеличили лого немного (было 1.3rem) */
                 font-size: 1.5rem; 
             }
-            /* Блок с кнопками */
             header > div:last-child {
                 display: flex;
-                gap: 3px; /* Минимальное расстояние между кнопками */
+                gap: 3px;
                 flex-shrink: 0;
             }
             .btn-action { 
-                min-width: auto; /* Убираем фиксированную ширину */
-                padding: 5px 8px; /* Максимально компактные кнопки */
-                font-size: 0.7rem; /* Уменьшаем шрифт на кнопках */
+                min-width: auto;
+                padding: 5px 8px;
+                font-size: 0.7rem;
             }
-            
-            /* ДОБАВЛЕНО: Уменьшаем форму поста на мобильных */
+
             .post-form {
                 padding: 15px;
             }
@@ -193,7 +185,7 @@
         <div id="gate-ui" class="gate-content-fixed">
             <h1 id="gate-text" style="color:#fff; margin-bottom: 20px; font-size: 3rem;">ACCESS?</h1>
             
-            <img src="img/panzerhund.png" style="width: 220px; max-width: 80%; margin-bottom: 20px;">
+            <img src="img/Panzerhund.png" style="width: 220px; max-width: 80%; margin-bottom: 20px;">
             
             <div class="gate-buttons-row">
                 <button class="btn-action" style="padding: 15px 50px; font-size: 1.2rem;" onclick="startLoading()">YES</button>
