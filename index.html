@@ -23,7 +23,16 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; font-family: 'Warface', sans-serif; transition: background 0.2s, color 0.2s; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; } 
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            min-height: 100vh; 
+            overflow-x: hidden;
+            /* ДОБАВЛЕНО: Отступы от боковых лент */
+            padding-left: 15px;
+            padding-right: 15px;
+        } 
         body.access-granted { overflow-y: auto; }
 
         #custom-cursor {
@@ -75,8 +84,12 @@
 
         header { 
             background: var(--bg); display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 5%; position: sticky; top: 0; z-index: 1000; 
-            border-bottom: 4px solid var(--accent); height: 90px; margin-top: 15px;
+            padding: 0 5%; position: sticky; 
+            /* ДОБАВЛЕНО: Отступ от верхней ленты */
+            top: 15px; 
+            z-index: 1000; 
+            border-bottom: 4px solid var(--accent); height: 90px; 
+            /* УБРАНО: margin-top: 15px; (заменено на top: 15px) */
         }
 
         .logo { font-family: 'Wolfenstein', serif !important; font-size: 2.2rem; color: var(--text); }
@@ -89,7 +102,12 @@
         }
         .btn-action:hover { background: var(--accent); color: var(--bg); }
 
-        main { padding: 30px 5%; max-width: 850px; margin: 0 auto; }
+        main { 
+            /* ИЗМЕНЕНО: Отступы для контента */
+            padding: 20px 0; 
+            max-width: 850px; 
+            margin: 0 auto; 
+        }
         .post-form { background: var(--card); border: 2px solid var(--accent); padding: 20px; margin-bottom: 30px; display: none; }
         .post-form.active { display: block; }
 
@@ -117,8 +135,44 @@
         .modal-content { background: var(--card); border: 4px solid var(--accent); padding: 30px; text-align: center; width: 280px; }
 
         @media (max-width: 480px) {
-            header { height: 75px; }
-            .logo { font-size: 1.7rem; }
+            header { 
+                height: 70px; 
+                padding: 0 5px; /* Минимальные боковые поля внутри хедера */
+                /* ИЗМЕНЕНО: top остается 15px, но убираем внешние отступы, если были */
+                margin-top: 0;
+            }
+            .header-pic { 
+                height: 35px; /* Уменьшаем картинку танка */
+                margin-right: 3px; 
+            }
+            .logo { 
+                /* ИЗМЕНЕНО: Увеличили лого немного (было 1.3rem) */
+                font-size: 1.5rem; 
+            }
+            /* Блок с кнопками */
+            header > div:last-child {
+                display: flex;
+                gap: 3px; /* Минимальное расстояние между кнопками */
+                flex-shrink: 0;
+            }
+            .btn-action { 
+                min-width: auto; /* Убираем фиксированную ширину */
+                padding: 5px 8px; /* Максимально компактные кнопки */
+                font-size: 0.7rem; /* Уменьшаем шрифт на кнопках */
+            }
+            
+            /* ДОБАВЛЕНО: Уменьшаем форму поста на мобильных */
+            .post-form {
+                padding: 15px;
+            }
+            .av-selector {
+                gap: 4px;
+            }
+            .av-box {
+                width: 35px;
+                height: 35px;
+            }
+
             #custom-cursor { display: none; }
             * { cursor: auto !important; }
             .gate-buttons-row { flex-direction: column; gap: 10px; }
