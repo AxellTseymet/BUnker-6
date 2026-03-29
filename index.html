@@ -15,22 +15,22 @@
         :root {
             --bg: #000; --card: #080808; --text: #fff; --sub: #bbb;
             --accent: #ffcc00; --border: #222; --red: #ff4444;
+            --reply-bg: #151515;
+            --player-bg: #050505;
         }
 
         body.light-mode {
             --bg: #e0e0e0; --card: #fff; --text: #000; --sub: #444;
             --accent: #cc0000; --border: #999;
+            --reply-bg: #f0f0f0;
+            --player-bg: #ccc;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; font-family: 'Warface', sans-serif; transition: background 0.2s, color 0.2s; }
         
         body { 
-            background: var(--bg); 
-            color: var(--text); 
-            min-height: 100vh; 
-            overflow-x: hidden;
-            padding-left: 15px;
-            padding-right: 15px;
+            background: var(--bg); color: var(--text); min-height: 100vh; 
+            overflow-x: hidden; padding-left: 15px; padding-right: 15px;
         } 
         body.access-granted { overflow-y: auto; }
 
@@ -50,8 +50,7 @@
             background: repeating-linear-gradient(45deg, var(--accent), var(--accent) 10px, #000 10px, #000 20px);
             z-index: 9999;
         }
-        .left-t { left: 0; }
-        .right-t { right: 0; }
+        .left-t { left: 0; } .right-t { right: 0; }
 
         @keyframes moveTape { from { background-position: 0 0; } to { background-position: 28px 0; } }
 
@@ -63,29 +62,24 @@
             position: absolute; top: 0; width: 50%; height: 100%;
             background: #000; transition: transform 1.5s cubic-bezier(0.7, 0, 0.3, 1);
         }
-        #gate-left { left: 0; }
-        #gate-right { right: 0; }
+        #gate-left { left: 0; } #gate-right { right: 0; }
 
         .gate-content-fixed {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             z-index: 10001; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center;
-            width: 100%; pointer-events: none; text-align: center;
+            align-items: center; justify-content: center; width: 100%; pointer-events: none; text-align: center;
         }
         .gate-content-fixed div, .gate-content-fixed img, .gate-content-fixed button { pointer-events: auto; }
         
-        .gate-buttons-row {
-            display: flex; gap: 20px; justify-content: center; align-items: center; margin-top: 20px;
-        }
+        .gate-buttons-row { display: flex; gap: 20px; justify-content: center; align-items: center; margin-top: 20px; }
 
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .gear-loader { width: 80px; height: 80px; animation: spin 2s linear infinite; margin-bottom: 20px; }
 
         header { 
             background: var(--bg); display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 5%; position: sticky; 
-            top: 15px; 
-            z-index: 1000; 
+            padding: 0 5%; position: sticky; top: 15px; z-index: 1000; 
             border-bottom: 4px solid var(--accent); height: 90px; 
         }
 
@@ -94,18 +88,16 @@
 
         .btn-action {
             background: none; border: 2px solid var(--accent);
-            color: var(--accent); padding: 8px 16px; font-weight: bold; font-size: 0.8rem;
-            min-width: 100px;
+            color: var(--accent); padding: 8px 16px; font-weight: bold; font-size: 0.8rem; min-width: 100px;
+            cursor: pointer;
         }
         .btn-action:hover { background: var(--accent); color: var(--bg); }
 
-        main { 
-            padding: 20px 0; 
-            max-width: 850px; 
-            margin: 0 auto; 
-        }
+        main { padding: 20px 0; max-width: 850px; margin: 0 auto; }
         .post-form { background: var(--card); border: 2px solid var(--accent); padding: 20px; margin-bottom: 30px; display: none; }
         .post-form.active { display: block; }
+
+        .warning-message { color: #ffcc00; background: rgba(255, 204, 0, 0.15); border: 1px solid #ffcc00; padding: 8px 10px; border-radius: 4px; font-size: 0.85rem; }
 
         input, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px; margin-bottom: 10px; }
         .av-selector { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
@@ -114,66 +106,72 @@
         .av-box-small { width: 30px; height: 30px; }
         .selected { border-color: var(--accent) !important; opacity: 1 !important; transform: scale(1.05); }
 
-        .story-card { background: var(--card); border: 1px solid var(--border); padding: 18px; margin-bottom: 20px; }
+        .story-card { background: var(--card); border: 1px solid var(--border); padding: 18px; margin-bottom: 20px; animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
         .avatar-post { width: 45px; height: 45px; border: 1px solid var(--accent); margin-right: 12px; object-fit: cover; }
         
         .comments-section { margin-top: 15px; display: none; padding-left: 10px; border-left: 2px solid var(--accent); }
         .comments-section.active { display: block; }
-        .comment-item { display: flex; gap: 10px; margin-bottom: 15px; align-items: flex-start; }
+        
+        .comment-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; padding: 8px; border-radius: 4px; }
+        .comment-nested { 
+            margin-left: 30px; 
+            background: var(--reply-bg); 
+            border: 1px dashed var(--border);
+            transform: scale(0.95);
+            transform-origin: left;
+        }
+
         .comment-av { width: 32px; height: 32px; border: 1px solid var(--accent); object-fit: cover; }
         .time-tag { font-size: 0.65rem; color: var(--sub); margin-left: 10px; }
+
+        .post-img-container { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+        .post-img { max-width: 150px; max-height: 150px; border: 1px solid var(--accent); object-fit: cover; }
+
+        .post-audio-container { margin-top: 10px; width: 100%; max-width: 400px; }
+        .bunker-player {
+            display: flex; align-items: center; background: var(--player-bg);
+            border: 1px solid var(--border); padding: 5px 10px; gap: 10px;
+            height: 40px; border-left: 3px solid var(--accent);
+        }
+        .player-btn {
+            background: none; border: none; color: var(--accent);
+            font-size: 1.2rem; cursor: pointer; width: 25px; text-align: center;
+        }
+        .player-progress-container {
+            flex: 1; height: 6px; background: #222; position: relative; cursor: pointer;
+        }
+        .player-progress-bar {
+            height: 100%; background: var(--accent); width: 0%; position: absolute; top: 0; left: 0;
+        }
+        .player-time { font-size: 0.65rem; color: var(--sub); font-family: monospace; min-width: 70px; text-align: right; }
 
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); display: none; justify-content: center;
             align-items: center; z-index: 10002;
         }
-        .modal-content { background: var(--card); border: 4px solid var(--accent); padding: 30px; text-align: center; width: 280px; }
+        .modal-content { background: var(--card); border: 4px solid var(--accent); padding: 30px; text-align: center; width: 280px; max-height: 90vh; overflow-y: auto; }
+
+        .upload-btn-label {
+            display: inline-block; border: 1px solid var(--accent); color: var(--accent);
+            padding: 5px 10px; font-size: 0.7rem; cursor: pointer; margin-bottom: 10px;
+        }
+        .upload-btn-label:hover { background: var(--accent); color: var(--bg); }
+        .file-status { font-size: 0.6rem; color: var(--accent); margin-left: 5px; vertical-align: middle; }
 
         @media (max-width: 480px) {
-            header { 
-                height: 70px; 
-                padding: 0 5px
-                margin-top: 0;
-            }
-            .header-pic { 
-                height: 35px;
-                margin-right: 3px; 
-            }
-            .logo { 
-                font-size: 1.5rem; 
-            }
-            header > div:last-child {
-                display: flex;
-                gap: 3px;
-                flex-shrink: 0;
-            }
-            .btn-action { 
-                min-width: auto;
-                padding: 5px 8px;
-                font-size: 0.7rem;
-            }
-
-            .post-form {
-                padding: 15px;
-            }
-            .av-selector {
-                gap: 4px;
-            }
-            .av-box {
-                width: 35px;
-                height: 35px;
-            }
+            header { height: 70px; padding: 0 5px; }
+            .logo { font-size: 1.5rem; }
+            .btn-action { min-width: auto; padding: 5px 8px; font-size: 0.7rem; }
+            .comment-nested { margin-left: 15px; }
 
             #custom-cursor { display: none; }
             * { cursor: auto !important; }
-            .gate-buttons-row { flex-direction: column; gap: 10px; }
         }
     </style>
 </head>
 <body>
     <div id="custom-cursor"></div>
-
     <div class="tape-top"></div>
     <div class="tape-side left-t"></div>
     <div class="tape-side right-t"></div>
@@ -181,32 +179,33 @@
     <div id="gate-container">
         <div id="gate-left" class="gate-half"></div>
         <div id="gate-right" class="gate-half"></div>
-
         <div id="gate-ui" class="gate-content-fixed">
             <h1 id="gate-text" style="color:#fff; margin-bottom: 20px; font-size: 3rem;">ACCESS?</h1>
-            
-            <img src="img/Panzerhund.png" style="width: 220px; max-width: 80%; margin-bottom: 20px;">
-            
-            <div class="gate-buttons-row">
+            <p id="gate-warning" style="color:#ffcc00; max-width: 330px; font-size: 0.9rem; line-height: 1.3; margin-bottom: 15px;"></p>
+            <img src="img/panzerhund.png" style="width: 220px; max-width: 80%; margin: 0 auto 20px; display: block;">
+            <div class="gate-buttons-row" style="display:flex; gap:20px; justify-content:center; margin-bottom:12px;">
                 <button class="btn-action" style="padding: 15px 50px; font-size: 1.2rem;" onclick="startLoading()">YES</button>
                 <button class="btn-action" style="border-color:var(--red); color:var(--red); padding: 15px 50px; font-size: 1.2rem;" onclick="location.href='https://google.com'">NO</button>
             </div>
+            <button class="btn-action" style="width:170px; margin:0 auto;" onclick="openLang()" id="gate-lang-button">LANGUAGE</button>
         </div>
-
         <div id="loader-view" style="position: fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index: 11000; display: none; flex-direction: column; align-items: center;">
             <img src="img/gear.png" class="gear-loader">
-            <p style="color: var(--accent); letter-spacing: 3px;">LOADING BUNKER...</p>
+            <p style="color: var(--accent); letter-spacing: 3px;">LOADING...</p>
         </div>
     </div>
 
     <div id="langModal" class="modal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 20px; color: var(--accent);">LANGUAGE</h2>
+            <h2 id="lang-title" style="margin-bottom: 20px; color: var(--accent);">LANGUAGE</h2>
             <button class="btn-action" style="width:100%; margin-bottom:8px;" onclick="setLang('ru')">РУССКИЙ</button>
             <button class="btn-action" style="width:100%; margin-bottom:8px;" onclick="setLang('en')">ENGLISH</button>
-            <button class="btn-action" style="width:100%; margin-bottom:8px;" onclick="setLang('ua')">УКРАЇНСЬКА</button>
             <button class="btn-action" style="width:100%; margin-bottom:8px;" onclick="setLang('de')">DEUTSCH</button>
+            <button class="btn-action" style="width:100%; margin-bottom:8px;" onclick="setLang('fr')">FRANÇAIS</button>
+            <button class="btn-action" style="width:100%; margin-bottom:8px;" onclick="setLang('es')">ESPAÑOL</button>
+            <button class="btn-action" style="width:100%; margin-bottom:8px;" onclick="setLang('it')">ITALIANO</button>
             <button class="btn-action" style="width:100%; margin-bottom:8px;" onclick="setLang('pl')">POLSKI</button>
+            <button class="btn-action" style="width:100%; margin-bottom:8px;" onclick="setLang('ua')">УКРАЇНСЬКА</button>
             <button class="btn-action" style="width:100%; margin-top:10px; border-color: var(--red); color: var(--red);" onclick="closeLang()">X</button>
         </div>
     </div>
@@ -218,7 +217,7 @@
         </div>
         <div>
             <button class="btn-action" onclick="toggleForm()" id="btn-write">+ POST</button>
-            <button class="btn-action" onclick="openLang()">LN</button>
+            <button class="btn-action" id="btn-lang" onclick="openLang()">LANGUAGE</button>
             <button class="btn-action" onclick="toggleTheme()">◑</button>
         </div>
     </header>
@@ -226,10 +225,23 @@
     <main>
         <section class="post-form" id="postForm">
             <h2 id="form-title" style="color:var(--accent); margin-bottom:12px;">NEW RECORD</h2>
-            <div class="av-selector" id="av-list"></div>
-            <input type="file" id="up-file" accept="image/*" style="font-size:0.6rem; border:none; margin-bottom:15px;">
-            <input type="text" id="userName" placeholder="NICKNAME...">
-            <textarea id="userText" rows="3" placeholder="MESSAGE..."></textarea>
+            <div class="av-selector">
+                <div id="av-list" style="display: flex; gap: 5px;"></div>
+                <label class="upload-btn-label" id="btn-up-av">AVATAR <input type="file" hidden accept="image/*" onchange="uploadMainAv(event)"></label>
+            </div>
+            
+            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <label class="upload-btn-label" id="btn-up-img">PHOTOS (MAX 5)<input type="file" id="up-file" multiple accept="image/*" hidden onchange="updateFileStatus('up-file', 'status-img')"></label>
+                <span id="status-img" class="file-status"></span>
+
+                <label class="upload-btn-label" id="btn-up-aud">AUDIO<input type="file" id="up-audio" multiple accept="audio/*" hidden onchange="updateFileStatus('up-audio', 'status-aud')"></label>
+                <span id="status-aud" class="file-status"></span>
+            </div>
+
+            <input type="text" id="userName" placeholder="NICKNAME..." maxlength="50">
+            <textarea id="userText" rows="3" placeholder="MESSAGE..." maxlength="8000"></textarea>
+            <div id="form-warning" class="warning-message" style="display:none; margin-bottom:10px;">Please enter text or attach media before sending.</div>
+            
             <div style="display:flex; gap:10px;">
                 <button class="btn-action" id="btn-send" style="flex:2; background:var(--accent); color:var(--bg);" onclick="sendPost()">SEND</button>
                 <button class="btn-action" id="btn-cancel" style="flex:1; border-color:var(--red); color:var(--red);" onclick="toggleForm()">CANCEL</button>
@@ -240,11 +252,14 @@
 
     <script>
         const translations = {
-            ru: { gate: "ДОСТУП?", write: "+ ДОНЕСЕНИЕ", title: "НОВАЯ ЗАПИСЬ", send: "ОТПРАВИТЬ", cancel: "ОТМЕНА", nick: "ПОЗЫВНОЙ...", msg: "ТЕКСТ...", comms: "ОТВЕТИТЬ", ans: "ОТВЕТЫ" },
-            en: { gate: "ACCESS?", write: "+ DISPATCH", title: "NEW RECORD", send: "SEND", cancel: "CANCEL", nick: "NICKNAME...", msg: "MESSAGE...", comms: "REPLY", ans: "ANSWERS" },
-            ua: { gate: "ДОСТУП?", write: "+ ДОНЕСЕННЯ", title: "НОВИЙ ЗАПИС", send: "ВІДПРАВИТИ", cancel: "СКАСУВАТИ", nick: "ПОЗИВНИЙ...", msg: "ТЕКСТ...", comms: "ВІДПОВІСТИ", ans: "ВІДПОВІДІ" },
-            de: { gate: "ZUGRIFF?", write: "+ MELDUNG", title: "EINTRAG", send: "SENDEN", cancel: "ABBRECHEN", nick: "NAME...", msg: "TEXT...", comms: "ANTWORTEN", ans: "ANTWORTEN" },
-            pl: { gate: "DOSTĘP?", write: "+ RAPORT", title: "NOWY WPIS", send: "WYŚLIJ", cancel: "ANULUJ", nick: "PSEUDONIM...", msg: "ТЕКSТ...", comms: "ODPOWIEDZ", ans: "ODPOWIEDZI" }
+            ru: { gate: "ДОСТУП?", write: "+ НОВЫЙ ПОСТ", title: "НОВЫЙ ПОСТ", send: "ОТПРАВИТЬ", cancel: "ОТМЕНА", nick: "ПОЗЫВНОЙ...", msg: "ТЕКСТ...", comms: "ОТВЕТИТЬ", ans: "ОТВЕТЫ", upAv: "АВАТАР", upImg: "ФОТО (ДО 5)", upAud: "АУДИО", upImgShort: "ФОТО", upAudShort: "АУДИО", langBtn: "ЯЗЫК", langTitle: "ЯЗЫК", warning: "Внимание! Сайт стилизован под военно-нацистский стиль и может показаться провокационным. Но – нет нацизма!" },
+            en: { gate: "ACCESS?", write: "+ DISPATCH", title: "NEW RECORD", send: "SEND", cancel: "CANCEL", nick: "NICKNAME...", msg: "MESSAGE...", comms: "REPLY", ans: "ANSWERS", upAv: "AVATAR", upImg: "PHOTOS (MAX 5)", upAud: "AUDIO", upImgShort: "PHOTO", upAudShort: "AUDIO", langBtn: "LANGUAGE", langTitle: "LANGUAGE", warning: "Warning! The site is styled in a military-Nazi style and may seem provocative. But – no Nazism!" },
+            de: { gate: "ZUGANG?", write: "+ MELDUNG", title: "NEUE AKTE", send: "SENDEN", cancel: "ABBRUCH", nick: "RUFNAME...", msg: "NACHRICHT...", comms: "ANTWORTEN", ans: "ANTWORTEN", upAv: "aVATAR", upImg: "FOTOS (MAX 5)", upAud: "AUDIO", upImgShort: "FOTO", upAudShort: "AUDIO", langBtn: "SPRACHE", langTitle: "SPRACHE", warning: "Achtung! Die Seite ist im militärisch-nazistischen Stil gestaltet und kann provokativ wirken. Aber – kein Nazismus!" },
+            fr: { gate: "ACCÈS?", write: "+ DÉPÊCHE", title: "NOUVEL ENREGISTREMENT", send: "ENVOYER", cancel: "ANNULER", nick: "PSEUDONYME...", msg: "MESSAGE...", comms: "RÉPONDRE", ans: "RÉPONSES", upAv: "AVATAR", upImg: "PHOTOS (MAX 5)", upAud: "AUDIO", upImgShort: "PHOTO", upAudShort: "AUDIO", langBtn: "LANGUE", langTitle: "LANGUE", warning: "Attention ! Le site est stylisé dans un style militaire-nazi et peut sembler provocateur. Mais – pas de nazisme !" },
+            es: { gate: "¿ACCESO?", write: "+ DESPACHО", title: "NUEVO REGISTRO", send: "ENVIAR", cancel: "CANCELAR", nick: "APODO...", msg: "MENSAJE...", comms: "RESPONDER", ans: "RESPUESTAS", upAv: "FOTOS (МÁХ 5)", upImg: "FOTOS (МÁХ 5)", upAud: "AUDIO", upImgShort: "FOTO", upAudShort: "AUDIO", langBtn: "IDIOMA", langTitle: "IDIOMA", warning: "¡Atención! El sitio está estilizado en un estilo militar-nazi y puede parecer provocativo. Pero – ¡no hay nazismo!" },
+            it: { gate: "ACCESSO?", write: "+ DISPACCIO", title: "NUOVO RECORD", send: "INVIA", cancel: "ANNULLА", nick: "NICKNAME...", msg: "MESSAGGIO...", comms: "RISPONDI", ans: "RISPOSTE", upAv: "AVATAR", upImg: "FOTO (MAX 5)", upAud: "AUDIO", upImgShort: "PHOTO", upAudShort: "AUDIO", langBtn: "LINGUA", langTitle: "LINGUA", warning: "Attenzione! Il sito è stilizzato in uno stile militare-nazista e può sembrare provocatorio. Ma – nessun nazismo!" },
+            pl: { gate: "DOSTĘP?", write: "+ RAPORT", title: "NOWY WPIS", send: "WYŚLIJ", cancel: "ANULUJ", nick: "PSEUDONIM...", msg: "WIADOMOŚĆ...", comms: "ODPOWIEDZ", ans: "ODPOWIEDZI", upAv: "AWATAR", upImg: "ZDJĘCIA (MAX 5)", upAud: "AUDIO", upImgShort: "ZDJĘCIA", upAudShort: "AUDIO", langBtn: "JĘZYK", langTitle: "JĘZYК", warning: "Uwaga! Strona jest stylizowana na styl wojskowo-nazistowski i może wydawać się prowokacyjna. Ale – nie ma nazizmu!" },
+            ua: { gate: "ДОСТУП?", write: "+ ДОНЕСЕННЯ", title: "НОВИЙ ЗАПИС", send: "ВІДПРАВИТИ", cancel: "ВІДМІНА", nick: "ПОЗИВНИЙ...", msg: "ТЕКСТ...", comms: "ВІДПОВІСТІ", ans: "ВІДПОВІДІ", upAv: "АВАТАР", upImg: "ФОТО (ДО 5)", upAud: "АУДІО", upImgShort: "ФОТО", upAudShort: "АУДІО", langBtn: "МОВА", langTitle: "МОВА", warning: "Увага! Сайт стилізований під військово-нацистський стиль і може здатися провокаційним. Але – немає нацизму!" }
         };
 
         const firebaseConfig = {
@@ -257,39 +272,32 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        let activeAv = 'img/1.jpg', commentAvs = {}, currentLang = 'ru', openComments = new Set(), myLikes = JSON.parse(localStorage.getItem('myLikes') || '{}');
+        let activeAv = 'img/1.jpg', commentAvs = {}, currentLang = 'en', openComments = new Set();
+        let myLikes = JSON.parse(localStorage.getItem('myLikes') || '{}');
+        let myDislikes = JSON.parse(localStorage.getItem('myDislikes') || '{}');
 
-        if (!sessionStorage.getItem('bunker_access')) { 
-            document.getElementById('gate-container').style.display = 'block'; 
-        } else {
-            document.body.classList.add('access-granted');
-        }
+        if (!sessionStorage.getItem('bunker_access')) { document.getElementById('gate-container').style.display = 'block'; }
+        else { document.body.classList.add('access-granted'); }
         
         function startLoading() {
             document.getElementById('gate-ui').style.display = 'none';
             document.getElementById('loader-view').style.display = 'flex';
-            
             setTimeout(() => {
                 document.getElementById('loader-view').style.display = 'none';
                 document.getElementById('gate-left').style.transform = 'translateX(-100%)';
                 document.getElementById('gate-right').style.transform = 'translateX(100%)';
                 document.body.classList.add('access-granted');
-                setTimeout(() => {
-                    document.getElementById('gate-container').style.display = 'none';
-                    sessionStorage.setItem('bunker_access', 'true');
-                }, 1500);
+                setTimeout(() => { document.getElementById('gate-container').style.display = 'none'; sessionStorage.setItem('bunker_access', 'true'); }, 1500);
             }, 2000);
         }
 
         function toggleTheme() { document.body.classList.toggle('light-mode'); }
         function openLang() { document.getElementById('langModal').style.display = 'flex'; }
         function closeLang() { document.getElementById('langModal').style.display = 'none'; }
-        function setLang(l) { currentLang = l; updateUI(); closeLang(); }
+        function setLang(l) { currentLang = l; updateUI(); loadPosts(); closeLang(); }
 
         const avList = document.getElementById('av-list');
-        for(let i=1; i<=7; i++) {
-            avList.innerHTML += `<img src="img/${i}.jpg" class="av-box ${i===1?'selected':''}" onclick="setAv(this, 'img/${i}.jpg')">`;
-        }
+        for(let i=1; i<=7; i++) { avList.innerHTML += `<img src="img/${i}.jpg" class="av-box ${i===1?'selected':''}" onclick="setAv(this, 'img/${i}.jpg')">`; }
 
         document.addEventListener('mousemove', e => {
             const c = document.getElementById('custom-cursor');
@@ -298,62 +306,141 @@
 
         function getStamp(ts) {
             const d = ts ? new Date(ts) : new Date();
-            return d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0') + " | " + d.getDate().toString().padStart(2,'0') + "." + (d.getMonth()+1).toString().padStart(2,'0') + "." + d.getFullYear();
+            return d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0') + " | " + d.getDate().toString().padStart(2,'0') + "." + (d.getMonth()+1).toString().padStart(2,'0');
         }
 
         function updateUI() {
             const t = translations[currentLang];
+            document.getElementById('gate-text').textContent = t.gate;
+            document.getElementById('gate-warning').textContent = t.warning;
+            document.getElementById('gate-lang-button').textContent = t.langBtn;
             document.getElementById('btn-write').textContent = t.write;
             document.getElementById('form-title').textContent = t.title;
             document.getElementById('btn-send').textContent = t.send;
             document.getElementById('btn-cancel').textContent = t.cancel;
             document.getElementById('userName').placeholder = t.nick;
             document.getElementById('userText').placeholder = t.msg;
-            document.getElementById('gate-text').textContent = t.gate;
+            document.getElementById('btn-up-av').innerHTML = `${t.upAv} <input type="file" hidden accept="image/*" onchange="uploadMainAv(event)">`;
+            document.getElementById('btn-up-img').innerHTML = `${t.upImg} <input type="file" id="up-file" multiple accept="image/*" hidden onchange="updateFileStatus('up-file', 'status-img')">`;
+            document.getElementById('btn-up-aud').innerHTML = `${t.upAud} <input type="file" id="up-audio" multiple accept="audio/*" hidden onchange="updateFileStatus('up-audio', 'status-aud')">`;
+            document.getElementById('lang-title').textContent = t.langTitle;
+            document.getElementById('btn-lang').textContent = t.langBtn;
             loadPosts();
         }
 
         function toggleForm() { document.getElementById('postForm').classList.toggle('active'); }
-        function setAv(el, p) {
-            document.querySelectorAll('.av-box').forEach(i => i.classList.remove('selected'));
-            el.classList.add('selected'); activeAv = p;
-        }
-
-        function setCommentAv(postId, el, path) {
-            document.querySelectorAll(`.av-comm-${postId}`).forEach(i => i.classList.remove('selected'));
-            if(el) el.classList.add('selected');
-            commentAvs[postId] = path;
-        }
-
-        function uploadCommAv(postId, e) {
+        function setAv(el, p) { document.querySelectorAll('.av-box').forEach(i => i.classList.remove('selected')); el.classList.add('selected'); activeAv = p; }
+        
+        function uploadMainAv(e) {
             const reader = new FileReader();
-            reader.onload = (ev) => {
-                commentAvs[postId] = ev.target.result;
-                document.querySelectorAll(`.av-comm-${postId}`).forEach(i => i.classList.remove('selected'));
-            };
+            reader.onload = (ev) => { activeAv = ev.target.result; document.querySelectorAll('.av-box').forEach(i => i.classList.remove('selected')); };
             reader.readAsDataURL(e.target.files[0]);
         }
 
-        function sendPost() {
-            const n = document.getElementById('userName').value.trim() || "Soldier", t = document.getElementById('userText').value.trim();
-            if(!t) return;
-            db.ref('posts').push({ name: n, message: t, avatar: activeAv, timestamp: Date.now(), likesCount: 0 });
-            toggleForm(); document.getElementById('userText').value = "";
+        function setCommentAv(postId, el, path) { document.querySelectorAll(`.av-comm-${postId}`).forEach(i => i.classList.remove('selected')); if(el) el.classList.add('selected'); commentAvs[postId] = path; }
+        
+        function uploadCommAv(postId, e) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { commentAvs[postId] = ev.target.result; document.querySelectorAll(`.av-comm-${postId}`).forEach(i => i.classList.remove('selected')); };
+            reader.readAsDataURL(e.target.files[0]);
         }
 
-        function addComment(postId) {
+        function updateFileStatus(inputId, statusId) {
+            const input = document.getElementById(inputId);
+            const status = document.getElementById(statusId);
+            if(input.files.length > 0) {
+                status.textContent = `Selected: ${input.files.length}`;
+            } else {
+                status.textContent = "";
+            }
+        }
+
+        function replyTo(postId, name) {
+            const input = document.getElementById(`ci-${postId}`);
+            input.value = `↳ ${name}, ` + input.value;
+            input.focus();
+        }
+
+        async function processFiles(files) {
+            let arr = [];
+            const limit = Math.min(files.length, 5);
+            for(let i=0; i<limit; i++) {
+                const data = await new Promise(r => { const rd = new FileReader(); rd.onload = (e) => r(e.target.result); rd.readAsDataURL(files[i]); });
+                arr.push(data);
+            }
+            return arr;
+        }
+
+        function showWarning(msg) { const w = document.getElementById('form-warning'); w.textContent = msg; w.style.display = 'block'; }
+        function hideWarning() { document.getElementById('form-warning').style.display = 'none'; }
+
+        async function sendPost() {
+            hideWarning();
+            const n = document.getElementById('userName').value.trim() || "Soldier", t = document.getElementById('userText').value.trim();
+            const fileInput = document.getElementById('up-file');
+            const audioInput = document.getElementById('up-audio');
+            let images = [], audios = [];
+            if (fileInput.files.length > 0) images = await processFiles(fileInput.files);
+            if (audioInput.files.length > 0) audios = await processFiles(audioInput.files);
+            if(!t && images.length === 0 && audios.length === 0) {
+                showWarning('Введите текст или добавьте медиа, прежде чем отправлять.');
+                return;
+            }
+            db.ref('posts').push({ name: n, message: t, avatar: activeAv, images: images, audio: audios, timestamp: Date.now(), likesCount: 0, dislikesCount: 0 });
+            toggleForm(); 
+            document.getElementById('userText').value = ""; 
+            fileInput.value = ""; 
+            audioInput.value = "";
+            document.getElementById('status-img').textContent = "";
+            document.getElementById('status-aud').textContent = "";
+        }
+
+        async function addComment(postId) {
             const n = document.getElementById(`cn-${postId}`).value.trim() || "Soldier", t = document.getElementById(`ci-${postId}`).value.trim();
             const av = commentAvs[postId] || 'img/1.jpg';
-            if (!t) return;
-            db.ref(`posts/${postId}/comments`).push({ name: n, text: t, avatar: av, timestamp: Date.now() });
-            document.getElementById(`ci-${postId}`).value = "";
+            const fileInput = document.getElementById(`file-comm-${postId}`);
+            const audioInput = document.getElementById(`aud-comm-${postId}`);
+            let images = [], audios = [];
+            if (fileInput && fileInput.files.length > 0) images = await processFiles(fileInput.files);
+            if (audioInput && audioInput.files.length > 0) audios = await processFiles(audioInput.files);
+            if (!t && images.length === 0 && audios.length === 0) {
+                alert('Введите текст или добавьте медиа, прежде чем отправлять комментарий.');
+                return;
+            }
+            db.ref(`posts/${postId}/comments`).push({ name: n, text: t, avatar: av, images: images, audio: audios, timestamp: Date.now() });
+            document.getElementById(`ci-${postId}`).value = ""; 
+            if(fileInput) fileInput.value = "";
+            if(audioInput) audioInput.value = "";
+            const sImg = document.getElementById(`status-comm-img-${postId}`);
+            const sAud = document.getElementById(`status-comm-aud-${postId}`);
+            if(sImg) sImg.textContent = "";
+            if(sAud) sAud.textContent = "";
         }
 
         function toggleLike(id) {
             const ref = db.ref(`posts/${id}/likesCount`);
-            if (myLikes[id]) { ref.set(firebase.database.ServerValue.increment(-1)); delete myLikes[id]; } 
-            else { ref.set(firebase.database.ServerValue.increment(1)); myLikes[id] = true; }
+            if (myLikes[id]) { 
+                ref.set(firebase.database.ServerValue.increment(-1)); 
+                delete myLikes[id]; 
+            } else { 
+                if(myDislikes[id]) toggleDislike(id);
+                ref.set(firebase.database.ServerValue.increment(1)); 
+                myLikes[id] = true; 
+            }
             localStorage.setItem('myLikes', JSON.stringify(myLikes));
+        }
+
+        function toggleDislike(id) {
+            const ref = db.ref(`posts/${id}/dislikesCount`);
+            if (myDislikes[id]) {
+                ref.set(firebase.database.ServerValue.increment(-1));
+                delete myDislikes[id];
+            } else {
+                if(myLikes[id]) toggleLike(id);
+                ref.set(firebase.database.ServerValue.increment(1));
+                myDislikes[id] = true;
+            }
+            localStorage.setItem('myDislikes', JSON.stringify(myDislikes));
         }
 
         function toggleComments(id) { 
@@ -361,24 +448,140 @@
             if(el.classList.toggle('active')) openComments.add(id); else openComments.delete(id);
         }
 
+        function togglePlay(id) {
+            const aud = document.getElementById(`aud-el-${id}`);
+            const btn = document.getElementById(`aud-btn-${id}`);
+            document.querySelectorAll('audio').forEach(a => { if(a !== aud) { a.pause(); const bId = a.id.replace('aud-el-', 'aud-btn-'); const b = document.getElementById(bId); if(b) b.textContent = '▶'; } });
+
+            if(aud.paused) { aud.play(); btn.textContent = ' ⏸'; } else { aud.pause(); btn.textContent = '▶'; }
+        }
+
+        function updateProgress(id) {
+            const aud = document.getElementById(`aud-el-${id}`);
+            const bar = document.getElementById(`aud-bar-${id}`);
+            const timeEl = document.getElementById(`aud-time-${id}`);
+            if(aud.duration) {
+                const pct = (aud.currentTime / aud.duration) * 100;
+                bar.style.width = pct + '%';
+                timeEl.textContent = formatTime(aud.currentTime) + ' / ' + formatTime(aud.duration);
+            }
+        }
+
+        function setAudioProgress(id, e) {
+            const aud = document.getElementById(`aud-el-${id}`);
+            const container = e.currentTarget;
+            const pct = e.offsetX / container.offsetWidth;
+            aud.currentTime = pct * aud.duration;
+        }
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return m.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
+        }
+
+        function getUniq() { return 'id' + Date.now() + Math.random().toString(16).slice(2); }
+
         function loadPosts() {
             db.ref('posts').orderByChild('timestamp').on('value', snap => {
-                const f = document.getElementById('feed'), t = translations[currentLang];
-                f.innerHTML = "";
+                const f = document.getElementById('feed'), t = translations[currentLang]; f.innerHTML = "";
                 if (!snap.exists()) return;
                 let data = []; snap.forEach(c => { data.push({id: c.key, ...c.val()}); });
-                data.reverse().forEach(p => {
-                    let cHtml = ""; 
+                data.reverse().forEach((p, index) => {
+                    let cHtml = ""; let cCount = p.comments ? Object.keys(p.comments).length : 0;
                     if (p.comments) {
                         Object.values(p.comments).sort((a,b) => a.timestamp - b.timestamp).forEach(c => {
-                            cHtml += `<div class="comment-item"><img src="${c.avatar}" class="comment-av"><div style="flex:1"><div><b style="color:var(--accent); font-size:0.75rem;">${c.name}</b><span class="time-tag">[${getStamp(c.timestamp)}]</span></div><div style="color:var(--text); font-size:0.8rem;">${c.text}</div></div></div>`;
+                            let isNested = c.text.includes('↳') ? 'comment-nested' : '';
+                            let cImgs = ""; 
+                            if(c.images) c.images.forEach(img => cImgs += `<img src="${img}" class="post-img">`);
+                            
+                            let cAuds = "";
+                            if(c.audio) c.audio.forEach(audData => {
+                                const u = getUniq();
+                                cAuds += `<div class="post-audio-container">
+                                    <audio id="aud-el-${u}" src="${audData}" ontimeupdate="updateProgress('${u}')" onended="document.getElementById('aud-btn-${u}').textContent='▶'"></audio>
+                                    <div class="bunker-player">
+                                        <button class="player-btn" id="aud-btn-${u}" onclick="togglePlay('${u}')">▶</button>
+                                        <div class="player-progress-container" onclick="setAudioProgress('${u}', event)">
+                                            <div class="player-progress-bar" id="aud-bar-${u}"></div>
+                                        </div>
+                                        <div class="player-time" id="aud-time-${u}">00:00 / 00:00</div>
+                                    </div>
+                                </div>`;
+                            });
+                            
+                            cHtml += `<div class="comment-item ${isNested}">
+                                <img src="${c.avatar}" class="comment-av">
+                                <div style="flex:1">
+                                    <div><b style="color:var(--accent); font-size:0.75rem;">${c.name}</b><span class="time-tag">[${getStamp(c.timestamp)}]</span></div>
+                                    <div style="color:var(--text); font-size:0.8rem;">${c.text}</div>
+                                    <div class="post-img-container">${cImgs}</div>
+                                    ${cAuds}
+                                    <div style="margin-top:5px; cursor:pointer; color:var(--sub); font-size:0.6rem;" onclick="replyTo('${p.id}', '${c.name}')">➥ REPLY</div>
+                                </div>
+                            </div>`;
                         });
                     }
                     let avsHtml = ""; for(let i=1; i<=7; i++) { avsHtml += `<img src="img/${i}.jpg" class="av-box-small av-comm-${p.id} ${i===1?'selected':''}" onclick="setCommentAv('${p.id}', this, 'img/${i}.jpg')">`; }
-                    f.innerHTML += `<div class="story-card"><div style="display:flex; justify-content:space-between; align-items:center;"><div style="display:flex; align-items:center;"><img src="${p.avatar}" class="avatar-post"><span style="color:var(--accent); font-size:0.95rem;">${p.name}</span></div><span class="time-tag">${getStamp(p.timestamp)}</span></div><p style="margin-top:12px; font-size:0.9rem;">${p.message}</p><div style="margin-top:15px; display:flex; gap:15px; align-items:center;"><div onclick="toggleLike('${p.id}')" style="cursor:pointer; font-size:0.8rem;">👍 ${p.likesCount || 0}</div><button class="btn-action" style="padding:4px 8px; font-size:0.6rem;" onclick="toggleComments('${p.id}')">${t.comms}</button></div><div class="comments-section ${openComments.has(p.id) ? 'active' : ''}" id="comments-${p.id}"><div>${cHtml}</div><div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;"><div class="av-selector">${avsHtml}<label style="cursor:pointer; border:1px solid var(--accent); padding:2px 5px; font-size:0.7rem; color:var(--accent);">📎<input type="file" hidden accept="image/*" onchange="uploadCommAv('${p.id}', event)"></label></div><input type="text" id="cn-${p.id}" placeholder="${t.nick}" style="font-size:0.7rem;"><div style="display:flex; gap:5px;"><input type="text" id="ci-${p.id}" placeholder="${t.msg}" style="margin:0;"><button class="btn-action" onclick="addComment('${p.id}')">OK</button></div></div></div></div>`;
+                    let pImgs = "";
+                    if(p.images) p.images.forEach(img => pImgs += `<img src="${img}" class="post-img">`);
+                    
+                    let pAuds = "";
+                    if(p.audio) p.audio.forEach(audData => {
+                        const u = getUniq();
+                        pAuds += `<div class="post-audio-container">
+                            <audio id="aud-el-${u}" src="${audData}" ontimeupdate="updateProgress('${u}')" onended="document.getElementById('aud-btn-${u}').textContent='▶'"></audio>
+                            <div class="bunker-player">
+                                <button class="player-btn" id="aud-btn-${u}" onclick="togglePlay('${u}')">▶</button>
+                                <div class="player-progress-container" onclick="setAudioProgress('${u}', event)">
+                                    <div class="player-progress-bar" id="aud-bar-${u}"></div>
+                                </div>
+                                <div class="player-time" id="aud-time-${u}">00:00 / 00:00</div>
+                            </div>
+                        </div>`;
+                    });
+                    
+                    let ansLabel = cCount > 0 ? `${t.ans}: ${cCount}` : "";
+                    f.innerHTML += `<div class="story-card" style="animation-delay: ${index * 0.1}s">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div style="display:flex; align-items:center;"><img src="${p.avatar}" class="avatar-post"><span style="color:var(--accent); font-size:0.95rem;">${p.name}</span></div>
+                            <span class="time-tag">${getStamp(p.timestamp)}</span>
+                        </div>
+                        <p style="margin-top:12px; font-size:0.9rem;">${p.message}</p>
+                        <div class="post-img-container">${pImgs}</div>
+                        ${pAuds}
+                        <div style="margin-top:15px; display:flex; gap:15px; align-items:center;">
+                            <div onclick="toggleLike('${p.id}')" style="cursor:pointer; font-size:0.8rem; color: ${myLikes[p.id] ? 'var(--accent)' : 'inherit'}">👍 ${p.likesCount || 0}</div>
+                            <div onclick="toggleDislike('${p.id}')" style="cursor:pointer; font-size:0.8rem; color: ${myDislikes[p.id] ? 'var(--red)' : 'inherit'}">👎 ${p.dislikesCount || 0}</div>
+                            <button class="btn-action" style="padding:4px 8px; font-size:0.6rem;" onclick="toggleComments('${p.id}')">${t.comms}</button>
+                            <span style="font-size:0.65rem; color:var(--sub);">${ansLabel}</span>
+                        </div>
+                        <div class="comments-section ${openComments.has(p.id) ? 'active' : ''}" id="comments-${p.id}">
+                            <div>${cHtml}</div>
+                            <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
+                                <div class="av-selector">
+                                    ${avsHtml}
+                                    <label class="upload-btn-label" style="margin:0;">${t.upAv}<input type="file" hidden accept="image/*" onchange="uploadCommAv('${p.id}', event)"></label>
+                                </div>
+                                <input type="text" id="cn-${p.id}" placeholder="${t.nick}" style="font-size:0.7rem; padding:5px;">
+                                <textarea id="ci-${p.id}" placeholder="${t.msg}" rows="2" style="font-size:0.75rem;"></textarea>
+                                
+                                <div style="display:flex; gap:5px; margin-bottom:8px; align-items:center;">
+                                     <label class="upload-btn-label" style="margin:0; font-size:0.6rem;">${t.upImgShort} <input type="file" id="file-comm-${p.id}" multiple accept="image/*" hidden onchange="updateFileStatus('file-comm-${p.id}', 'status-comm-img-${p.id}')"></label>
+                                     <span id="status-comm-img-${p.id}" class="file-status"></span>
+
+                                     <label class="upload-btn-label" style="margin:0; font-size:0.6rem;">${t.upAudShort} <input type="file" id="aud-comm-${p.id}" accept="audio/*" hidden onchange="updateFileStatus('aud-comm-${p.id}', 'status-comm-aud-${p.id}')"></label>
+                                     <span id="status-comm-aud-${p.id}" class="file-status"></span>
+                                </div>
+
+                                <button class="btn-action" onclick="addComment('${p.id}')" style="width:100%;">${t.send}</button>
+                            </div>
+                        </div>
+                    </div>`;
                 });
             });
         }
+
         updateUI();
     </script>
 </body>
