@@ -7,27 +7,23 @@
     <link rel="icon" type="image/x-icon" href="img/panzer.ico">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
         @font-face { font-family: 'Warface'; src: url('img/Warface.ttf'); }
         @font-face { font-family: 'Wolfenstein'; src: url('img/wolfenstein.ttf'); }
-
         :root {
             --bg: #000; --card: #080808; --text: #fff; --sub: #bbb;
             --accent: #ffcc00; --border: #222; --red: #ff4444;
             --reply-bg: #151515;
             --player-bg: #050505;
         }
-
         body.light-mode {
             --bg: #e0e0e0; --card: #fff; --text: #000; --sub: #444;
             --accent: #cc0000; --border: #999;
             --reply-bg: #f0f0f0;
             --player-bg: #ccc;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; font-family: 'Warface', sans-serif; transition: background 0.2s, color 0.2s; }
-        
         body { 
             background: var(--bg); color: var(--text); min-height: 100vh; 
             overflow-x: hidden; padding-left: 15px; padding-right: 15px;
@@ -77,12 +73,23 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .gear-loader { width: 80px; height: 80px; animation: spin 2s linear infinite; margin-bottom: 20px; }
 
+        @keyframes loadingDots {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+            100% { content: '.'; }
+        }
+        .animated-dots::after {
+            content: '.';
+            animation: loadingDots 1.2s infinite;
+            letter-spacing: 2px;
+        }
+
         header { 
             background: var(--bg); display: flex; justify-content: space-between; align-items: center; 
             padding: 0 5%; position: sticky; top: 15px; z-index: 1000; 
             border-bottom: 4px solid var(--accent); height: 90px; 
         }
-
         .logo { font-family: 'Wolfenstein', serif !important; font-size: 2.2rem; color: var(--text); }
         .header-pic { height: 55px; margin-right: 12px; }
 
@@ -101,7 +108,7 @@
 
         input, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px; margin-bottom: 10px; }
         .av-selector { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
-        .av-box, .av-box-small { border: 2px solid var(--border); opacity: 0.4; object-fit: cover; }
+        .av-box, .av-box-small { border: 2px solid var(--border); opacity: 0.4; object-fit: cover; cursor: pointer; }
         .av-box { width: 42px; height: 42px; }
         .av-box-small { width: 30px; height: 30px; }
         .selected { border-color: var(--accent) !important; opacity: 1 !important; transform: scale(1.05); }
@@ -120,7 +127,6 @@
             transform: scale(0.95);
             transform-origin: left;
         }
-
         .comment-av { width: 32px; height: 32px; border: 1px solid var(--accent); object-fit: cover; }
         .time-tag { font-size: 0.65rem; color: var(--sub); margin-left: 10px; }
 
@@ -148,9 +154,9 @@
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); display: none; justify-content: center;
-            align-items: center; z-index: 10002;
+            align-items: center; z-index: 10002; overflow-y: auto;
         }
-        .modal-content { background: var(--card); border: 4px solid var(--accent); padding: 30px; text-align: center; width: 280px; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: var(--card); border: 4px solid var(--accent); padding: 30px; text-align: center; width: 280px; max-height: 90vh; overflow-y: auto; margin: 20px; }
 
         .upload-btn-label {
             display: inline-block; border: 1px solid var(--accent); color: var(--accent);
@@ -164,7 +170,6 @@
             .logo { font-size: 1.5rem; }
             .btn-action { min-width: auto; padding: 5px 8px; font-size: 0.7rem; }
             .comment-nested { margin-left: 15px; }
-
             #custom-cursor { display: none; }
             * { cursor: auto !important; }
         }
@@ -182,8 +187,8 @@
         <div id="gate-ui" class="gate-content-fixed">
             <h1 id="gate-text" style="color:#fff; margin-bottom: 20px; font-size: 3rem;">ACCESS?</h1>
             <p id="gate-warning" style="color:#ffcc00; max-width: 330px; font-size: 0.9rem; line-height: 1.3; margin-bottom: 15px;"></p>
-            <img src="img/Panzerhund.png" style="width: 220px; max-width: 80%; margin: 0 auto 20px; display: block;">
-            <div class="gate-buttons-row" style="display:flex; gap:20px; justify-content:center; margin-bottom:12px;">
+            <img src="img/panzerhund.png" style="width: 220px; max-width: 80%; margin: 0 auto 20px; display: block;">
+            <div class="gate-buttons-row">
                 <button class="btn-action" style="padding: 15px 50px; font-size: 1.2rem;" onclick="startLoading()">YES</button>
                 <button class="btn-action" style="border-color:var(--red); color:var(--red); padding: 15px 50px; font-size: 1.2rem;" onclick="location.href='https://google.com'">NO</button>
             </div>
@@ -191,7 +196,7 @@
         </div>
         <div id="loader-view" style="position: fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index: 11000; display: none; flex-direction: column; align-items: center;">
             <img src="img/gear.png" class="gear-loader">
-            <p style="color: var(--accent); letter-spacing: 3px;">LOADING...</p>
+            <p style="color: var(--accent); letter-spacing: 3px;">LOADING<span class="animated-dots"></span></p>
         </div>
     </div>
 
@@ -210,15 +215,39 @@
         </div>
     </div>
 
+    <div id="authModal" class="modal">
+        <div class="modal-content" style="min-width:280px; max-width:380px;">
+            <h2 style="margin-bottom:20px; color:var(--accent);" id="auth-title">Login</h2>
+            
+            <form id="authForm" onsubmit="return false;">
+                <input type="email" id="authEmail" placeholder="E-Mail..." autocomplete="username" required>
+                <input type="password" id="authPass" placeholder="Password..." autocomplete="current-password" required>
+                <div id="auth-error" style="color:var(--red); font-size:0.8rem;height:18px;margin-bottom:8px;"></div>
+                <button type="button" class="btn-action" id="btn-auth-login" style="font-size:1rem;width:100%;background:var(--accent);color:var(--bg);">SIGN IN</button>
+                <button type="button" class="btn-action" id="btn-auth-signup" style="font-size:1rem;width:100%;margin-top:8px;">REGISTER</button>
+            </form>
+
+            <button type="button" class="btn-action" id="btn-guest" style="width:100%; margin-top:15px; border-color:var(--accent); color:var(--accent);">CONTINUE AS GUEST</button>
+            <div style="margin-top:15px;text-align:center;color:var(--accent);font-size:0.85rem;"><span id="auth-desc"></span></div>
+        </div>
+    </div>
+
+    <div id="nicknameModal" class="modal">
+        <div class="modal-content" style="min-width:280px; max-width:380px;">
+            <h2 style="margin-bottom:20px; color:var(--accent);" id="nickname-title">Choose Nickname</h2>
+            <p id="nickname-desc" style="color:var(--text); margin-bottom:15px; font-size:0.9rem;"></p>
+            <input type="text" id="nicknameInput" placeholder="Your nickname..." maxlength="50" style="margin-bottom:15px;">
+            <div id="nickname-error" style="color:var(--red); font-size:0.8rem;height:18px;margin-bottom:8px;"></div>
+            <button type="button" class="btn-action" id="btn-nickname-confirm" style="font-size:1rem;width:100%;background:var(--accent);color:var(--bg);">CONFIRM</button>
+        </div>
+    </div>
+
     <header>
         <div style="display:flex; align-items:center;">
             <img src="img/panzer.png" class="header-pic">
             <div class="logo">Bunker-6</div>
         </div>
-        <div>
-            <button class="btn-action" onclick="toggleForm()" id="btn-write">+ POST</button>
-            <button class="btn-action" id="btn-lang" onclick="openLang()">LANGUAGE</button>
-            <button class="btn-action" onclick="toggleTheme()">◑</button>
+        <div id="header-btns">
         </div>
     </header>
 
@@ -229,39 +258,24 @@
                 <div id="av-list" style="display: flex; gap: 5px;"></div>
                 <label class="upload-btn-label" id="btn-up-av">AVATAR <input type="file" hidden accept="image/*" onchange="uploadMainAv(event)"></label>
             </div>
-            
             <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                 <label class="upload-btn-label" id="btn-up-img">PHOTOS (MAX 5)<input type="file" id="up-file" multiple accept="image/*" hidden onchange="updateFileStatus('up-file', 'status-img')"></label>
                 <span id="status-img" class="file-status"></span>
-
                 <label class="upload-btn-label" id="btn-up-aud">AUDIO<input type="file" id="up-audio" multiple accept="audio/*" hidden onchange="updateFileStatus('up-audio', 'status-aud')"></label>
                 <span id="status-aud" class="file-status"></span>
             </div>
-
             <input type="text" id="userName" placeholder="NICKNAME..." maxlength="50">
             <textarea id="userText" rows="3" placeholder="MESSAGE..." maxlength="8000"></textarea>
             <div id="form-warning" class="warning-message" style="display:none; margin-bottom:10px;">Please enter text or attach media before sending.</div>
-            
             <div style="display:flex; gap:10px;">
-                <button class="btn-action" id="btn-send" style="flex:2; background:var(--accent); color:var(--bg);" onclick="sendPost()">SEND</button>
-                <button class="btn-action" id="btn-cancel" style="flex:1; border-color:var(--red); color:var(--red);" onclick="toggleForm()">CANCEL</button>
+                <button type="button" class="btn-action" id="btn-send" style="flex:2; background:var(--accent); color:var(--bg);" onclick="sendPost()">SEND</button>
+                <button type="button" class="btn-action" id="btn-cancel" style="flex:1; border-color:var(--red); color:var(--red);" onclick="toggleForm()">CANCEL</button>
             </div>
         </section>
         <div id="feed"></div>
     </main>
 
     <script>
-        const translations = {
-            ru: { gate: "ДОСТУП?", write: "+ НОВЫЙ ПОСТ", title: "НОВЫЙ ПОСТ", send: "ОТПРАВИТЬ", cancel: "ОТМЕНА", nick: "ПОЗЫВНОЙ...", msg: "ТЕКСТ...", comms: "ОТВЕТИТЬ", ans: "ОТВЕТЫ", upAv: "АВАТАР", upImg: "ФОТО (ДО 5)", upAud: "АУДИО", upImgShort: "ФОТО", upAudShort: "АУДИО", langBtn: "ЯЗЫК", langTitle: "ЯЗЫК", warning: "Внимание! Сайт стилизован под военно-нацистский стиль и может показаться провокационным. Но – нет нацизма!" },
-            en: { gate: "ACCESS?", write: "+ DISPATCH", title: "NEW RECORD", send: "SEND", cancel: "CANCEL", nick: "NICKNAME...", msg: "MESSAGE...", comms: "REPLY", ans: "ANSWERS", upAv: "AVATAR", upImg: "PHOTOS (MAX 5)", upAud: "AUDIO", upImgShort: "PHOTO", upAudShort: "AUDIO", langBtn: "LANGUAGE", langTitle: "LANGUAGE", warning: "Warning! The site is styled in a military-Nazi style and may seem provocative. But – no Nazism!" },
-            de: { gate: "ZUGANG?", write: "+ MELDUNG", title: "NEUE AKTE", send: "SENDEN", cancel: "ABBRUCH", nick: "RUFNAME...", msg: "NACHRICHT...", comms: "ANTWORTEN", ans: "ANTWORTEN", upAv: "aVATAR", upImg: "FOTOS (MAX 5)", upAud: "AUDIO", upImgShort: "FOTO", upAudShort: "AUDIO", langBtn: "SPRACHE", langTitle: "SPRACHE", warning: "Achtung! Die Seite ist im militärisch-nazistischen Stil gestaltet und kann provokativ wirken. Aber – kein Nazismus!" },
-            fr: { gate: "ACCÈS?", write: "+ DÉPÊCHE", title: "NOUVEL ENREGISTREMENT", send: "ENVOYER", cancel: "ANNULER", nick: "PSEUDONYME...", msg: "MESSAGE...", comms: "RÉPONDRE", ans: "RÉPONSES", upAv: "AVATAR", upImg: "PHOTOS (MAX 5)", upAud: "AUDIO", upImgShort: "PHOTO", upAudShort: "AUDIO", langBtn: "LANGUE", langTitle: "LANGUE", warning: "Attention ! Le site est stylisé dans un style militaire-nazi et peut sembler provocateur. Mais – pas de nazisme !" },
-            es: { gate: "¿ACCESO?", write: "+ DESPACHО", title: "NUEVO REGISTRO", send: "ENVIAR", cancel: "CANCELAR", nick: "APODO...", msg: "MENSAJE...", comms: "RESPONDER", ans: "RESPUESTAS", upAv: "FOTOS (МÁХ 5)", upImg: "FOTOS (МÁХ 5)", upAud: "AUDIO", upImgShort: "FOTO", upAudShort: "AUDIO", langBtn: "IDIOMA", langTitle: "IDIOMA", warning: "¡Atención! El sitio está estilizado en un estilo militar-nazi y puede parecer provocativo. Pero – ¡no hay nazismo!" },
-            it: { gate: "ACCESSO?", write: "+ DISPACCIO", title: "NUOVO RECORD", send: "INVIA", cancel: "ANNULLА", nick: "NICKNAME...", msg: "MESSAGGIO...", comms: "RISPONDI", ans: "RISPOSTE", upAv: "AVATAR", upImg: "FOTO (MAX 5)", upAud: "AUDIO", upImgShort: "PHOTO", upAudShort: "AUDIO", langBtn: "LINGUA", langTitle: "LINGUA", warning: "Attenzione! Il sito è stilizzato in uno stile militare-nazista e può sembrare provocatorio. Ma – nessun nazismo!" },
-            pl: { gate: "DOSTĘP?", write: "+ RAPORT", title: "NOWY WPIS", send: "WYŚLIJ", cancel: "ANULUJ", nick: "PSEUDONIM...", msg: "WIADOMOŚĆ...", comms: "ODPOWIEDZ", ans: "ODPOWIEDZI", upAv: "AWATAR", upImg: "ZDJĘCIA (MAX 5)", upAud: "AUDIO", upImgShort: "ZDJĘCIA", upAudShort: "AUDIO", langBtn: "JĘZYK", langTitle: "JĘZYК", warning: "Uwaga! Strona jest stylizowana na styl wojskowo-nazistowski i może wydawać się prowokacyjna. Ale – nie ma nazizmu!" },
-            ua: { gate: "ДОСТУП?", write: "+ ДОНЕСЕННЯ", title: "НОВИЙ ЗАПИС", send: "ВІДПРАВИТИ", cancel: "ВІДМІНА", nick: "ПОЗИВНИЙ...", msg: "ТЕКСТ...", comms: "ВІДПОВІСТІ", ans: "ВІДПОВІДІ", upAv: "АВАТАР", upImg: "ФОТО (ДО 5)", upAud: "АУДІО", upImgShort: "ФОТО", upAudShort: "АУДІО", langBtn: "МОВА", langTitle: "МОВА", warning: "Увага! Сайт стилізований під військово-нацистський стиль і може здатися провокаційним. Але – немає нацизму!" }
-        };
-
         const firebaseConfig = {
             apiKey: "AIzaSyCuSiRlhxBhw2IzAmVoRcvzl0QdgjjwjeM",
             authDomain: "bunker-6.firebaseapp.com",
@@ -271,50 +285,160 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
-        let activeAv = 'img/1.jpg', commentAvs = {}, currentLang = 'en', openComments = new Set();
+        const auth = firebase.auth();
+
+        const translations = {
+            ru: { 
+                gate:"ДОСТУП?", write:"+ НОВЫЙ ПОСТ", title:"НОВЫЙ ПОСТ", send:"ОТПРАВИТЬ", cancel:"ОТМЕНА", 
+                nick:"ПОЗЫВНОЙ...", msg:"ТЕКСТ...", comms:"ОТВЕТИТЬ", ans:"ОТВЕТЫ", upAv:"АВАТАР", upImg:"ФОТО (ДО 5)", 
+                upAud:"АУДИО", upImgShort:"ФОТО", upAudShort:"АУДИО", langBtn:"ЯЗЫК", langTitle:"ЯЗЫК", 
+                warning:"Внимание! Сайт стилизован под воен��о-нацистский стиль и может показаться провокационным. Но – нет нацизма!", 
+                loginTitle:"Вход на сайт", loginMsg:"Войдите или продолжите как гость.", 
+                signin:"Вход", signout:"Выйти", register:"Регистрация", signin_btn:"ВОЙТИ", register_btn:"ЗАРЕГИСТРИРОВАТЬСЯ",
+                guest_btn:"ПРОДОЛЖИТЬ КАК ГОСТЬ", nickname_title:"Выберите позывной", nickname_desc:"Этот позывной нельзя будет изменить!", nickname_confirm:"ПОДТВЕРДИТЬ"
+            },
+            en: { 
+                gate:"ACCESS?", write:"+ DISPATCH", title:"NEW RECORD", send:"SEND", cancel:"CANCEL", 
+                nick:"NICKNAME...", msg:"MESSAGE...", comms:"REPLY", ans:"ANSWERS", upAv:"AVATAR", upImg:"PHOTOS (MAX 5)", 
+                upAud:"AUDIO", upImgShort:"PHOTO", upAudShort:"AUDIO", langBtn:"LANGUAGE", langTitle:"LANGUAGE", 
+                warning:"Warning! The site is styled in a military-Nazi style and may seem provocative. But – no Nazism!", 
+                loginTitle:"Sign in", loginMsg:"Sign in or continue as guest.", 
+                signin:"Sign in", signout:"Sign out", register:"Register", signin_btn:"SIGN IN", register_btn:"REGISTER",
+                guest_btn:"CONTINUE AS GUEST", nickname_title:"Choose Nickname", nickname_desc:"This nickname cannot be changed later!", nickname_confirm:"CONFIRM"
+            },
+            de: {
+                gate:"ZUGANG?", write:"+ NEUER EINTRAG", title:"NEUER EINTRAG", send:"SENDEN", cancel:"ABBRECHEN",
+                nick:"SPITZNAME...", msg:"NACHRICHT...", comms:"ANTWORT", ans:"ANTWORTEN", upAv:"AVATAR", upImg:"FOTOS (MAX 5)",
+                upAud:"AUDIO", upImgShort:"FOTO", upAudShort:"AUDIO", langBtn:"SPRACHE", langTitle:"SPRACHE",
+                warning:"Warnung! Die Website ist im Militär-Nazi-Stil gestaltet und kann provokativ wirken. Aber – kein Nazismus!",
+                loginTitle:"Anmelden", loginMsg:"Melden Sie sich an oder fahren Sie als Gast fort.",
+                signin:"Anmelden", signout:"Abmelden", register:"Registrieren", signin_btn:"ANMELDEN", register_btn:"REGISTRIEREN",
+                guest_btn:"ALS GAST FORTFAHREN", nickname_title:"Spitznamen wählen", nickname_desc:"Dieser Spitzname kann später nicht geändert werden!", nickname_confirm:"BESTÄTIGEN"
+            },
+            fr: {
+                gate:"ACCÈS?", write:"+ NOUVEAU POSTE", title:"NOUVEAU POSTE", send:"ENVOYER", cancel:"ANNULER",
+                nick:"SURNOM...", msg:"MESSAGE...", comms:"RÉPONSE", ans:"RÉPONSES", upAv:"AVATAR", upImg:"PHOTOS (MAX 5)",
+                upAud:"AUDIO", upImgShort:"PHOTO", upAudShort:"AUDIO", langBtn:"LANGUE", langTitle:"LANGUE",
+                warning:"Avertissement! Le site est stylisé dans un style militaire-nazi et peut sembler provocateur. Mais – pas de nazisme!",
+                loginTitle:"Connexion", loginMsg:"Connectez-vous ou continuez en tant qu'invité.",
+                signin:"Connexion", signout:"Déconnexion", register:"S'inscrire", signin_btn:"CONNEXION", register_btn:"S'INSCRIRE",
+                guest_btn:"CONTINUER EN TANT QU'INVITÉ", nickname_title:"Choisir un surnom", nickname_desc:"Ce surnom ne peut pas être modifié plus tard!", nickname_confirm:"CONFIRMER"
+            },
+            es: {
+                gate:"¿ACCESO?", write:"+ NUEVO REGISTRO", title:"NUEVO REGISTRO", send:"ENVIAR", cancel:"CANCELAR",
+                nick:"APODO...", msg:"MENSAJE...", comms:"RESPUESTA", ans:"RESPUESTAS", upAv:"AVATAR", upImg:"FOTOS (MAX 5)",
+                upAud:"AUDIO", upImgShort:"FOTO", upAudShort:"AUDIO", langBtn:"IDIOMA", langTitle:"IDIOMA",
+                warning:"¡Advertencia! El sitio tiene un estilo militar-nazi y puede parecer provocador. ¡Pero – sin nazismo!",
+                loginTitle:"Iniciar sesión", loginMsg:"Inicie sesión o continúe como invitado.",
+                signin:"Iniciar sesión", signout:"Cerrar sesión", register:"Registrarse", signin_btn:"INICIAR SESIÓN", register_btn:"REGISTRARSE",
+                guest_btn:"CONTINUAR COMO INVITADO", nickname_title:"Elegir apodo", nickname_desc:"¡Este apodo no se puede cambiar más tarde!", nickname_confirm:"CONFIRMAR"
+            },
+            it: {
+                gate:"ACCESSO?", write:"+ NUOVO RECORD", title:"NUOVO RECORD", send:"INVIA", cancel:"ANNULLA",
+                nick:"NICKNAME...", msg:"MESSAGGIO...", comms:"RISPOSTA", ans:"RISPOSTE", upAv:"AVATAR", upImg:"FOTO (MAX 5)",
+                upAud:"AUDIO", upImgShort:"FOTO", upAudShort:"AUDIO", langBtn:"LINGUA", langTitle:"LINGUA",
+                warning:"Avvertenza! Il sito è stilizzato nello stile militare-nazista e può sembrare provocatorio. Ma – niente nazismo!",
+                loginTitle:"Accedi", loginMsg:"Accedi o continua come ospite.",
+                signin:"Accedi", signout:"Esci", register:"Registrati", signin_btn:"ACCEDI", register_btn:"REGISTRATI",
+                guest_btn:"CONTINUA COME OSPITE", nickname_title:"Scegli nickname", nickname_desc:"Questo nickname non può essere cambiato in seguito!", nickname_confirm:"CONFERMA"
+            },
+            pl: {
+                gate:"DOSTĘP?", write:"+ NOWY WPIS", title:"NOWY WPIS", send:"WYŚLIJ", cancel:"ANULUJ",
+                nick:"PSEUDONIM...", msg:"WIADOMOŚĆ...", comms:"ODPOWIEDŹ", ans:"ODPOWIEDZI", upAv:"AVATAR", upImg:"ZDJĘCIA (MAX 5)",
+                upAud:"AUDIO", upImgShort:"ZDJĘCIE", upAudShort:"AUDIO", langBtn:"JĘZYK", langTitle:"JĘZYK",
+                warning:"Ostrzeżenie! Witryna ma styl militarno-nazistowski i może wydawać się prowokacyjna. Ale – bez nazizmu!",
+                loginTitle:"Zaloguj się", loginMsg:"Zaloguj się lub kontynuuj jako gość.",
+                signin:"Zaloguj się", signout:"Wyloguj się", register:"Zarejestruj się", signin_btn:"ZALOGUJ SIĘ", register_btn:"ZAREJESTRUJ SIĘ",
+                guest_btn:"KONTYNUUJ JAKO GOŚĆ", nickname_title:"Wybierz pseudonim", nickname_desc:"Ten pseudonim nie może być zmieniony później!", nickname_confirm:"POTWIERDŹ"
+            },
+            ua: {
+                gate:"ДОСТУП?", write:"+ НОВИЙ ЗАПИС", title:"НОВИЙ ЗАПИС", send:"НАДІСЛАТИ", cancel:"СКАСУВАТИ",
+                nick:"ПОЗИВНИЙ...", msg:"ТЕКСТ...", comms:"ВІДПОВІДЬ", ans:"ВІДПОВІДІ", upAv:"АВАТАР", upImg:"ФОТО (MAX 5)",
+                upAud:"АУДІО", upImgShort:"ФОТО", upAudShort:"АУДІО", langBtn:"МОВА", langTitle:"МОВА",
+                warning:"Увага! Сайт стилізований під військово-нацистський стиль і може здатися провокаційним. Але – без нацизму!",
+                loginTitle:"Вхід", loginMsg:"Увійдіть або продовжте як гість.",
+                signin:"Вхід", signout:"Вихід", register:"Реєстрація", signin_btn:"ВХІД", register_btn:"РЕЄСТРАЦІЯ",
+                guest_btn:"ПРОДОВЖИТИ ЯК ГІСТЬ", nickname_title:"Виберіть позивний", nickname_desc:"Цей позивний не можна буде змінити пізніше!", nickname_confirm:"ПІДТВЕРДИТИ"
+            }
+        };
+
+        let activeAv = 'img/1.jpg', commentAvs = {}, currentLang = localStorage.getItem('bunkerLang') || 'en', openComments = new Set();
         let myLikes = JSON.parse(localStorage.getItem('myLikes') || '{}');
         let myDislikes = JSON.parse(localStorage.getItem('myDislikes') || '{}');
 
-        if (!sessionStorage.getItem('bunker_access')) { document.getElementById('gate-container').style.display = 'block'; }
-        else { document.body.classList.add('access-granted'); }
-        
-        function startLoading() {
-            document.getElementById('gate-ui').style.display = 'none';
-            document.getElementById('loader-view').style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('loader-view').style.display = 'none';
-                document.getElementById('gate-left').style.transform = 'translateX(-100%)';
-                document.getElementById('gate-right').style.transform = 'translateX(100%)';
-                document.body.classList.add('access-granted');
-                setTimeout(() => { document.getElementById('gate-container').style.display = 'none'; sessionStorage.setItem('bunker_access', 'true'); }, 1500);
-            }, 2000);
-        }
+        let currentUser = null;
+        let currentUserNickname = null;
+        let isAdmin = false;
+        let isGuest = false;
+        const ADMIN_EMAIL = "axelltseymet@gmail.com";
 
-        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+        function setLang(l) {
+            currentLang = l;
+            localStorage.setItem('bunkerLang', l);
+            updateUI();
+            closeLang();
+            loadPosts();
+        }
         function openLang() { document.getElementById('langModal').style.display = 'flex'; }
         function closeLang() { document.getElementById('langModal').style.display = 'none'; }
-        function setLang(l) { currentLang = l; updateUI(); loadPosts(); closeLang(); }
-
-        const avList = document.getElementById('av-list');
-        for(let i=1; i<=7; i++) { avList.innerHTML += `<img src="img/${i}.jpg" class="av-box ${i===1?'selected':''}" onclick="setAv(this, 'img/${i}.jpg')">`; }
-
-        document.addEventListener('mousemove', e => {
-            const c = document.getElementById('custom-cursor');
-            if(c) { c.style.left = e.clientX+'px'; c.style.top = e.clientY+'px'; c.style.opacity = '1'; }
-        });
 
         function getStamp(ts) {
             const d = ts ? new Date(ts) : new Date();
             return d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0') + " | " + d.getDate().toString().padStart(2,'0') + "." + (d.getMonth()+1).toString().padStart(2,'0');
         }
+        function getUniq() { return 'id' + Date.now() + Math.random().toString(16).slice(2); }
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return m.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
+        }
+
+        function showAuth() {
+            const l = translations[currentLang] || translations.en;
+            document.getElementById('auth-title').textContent = l.loginTitle;
+            document.getElementById('btn-auth-login').textContent = l.signin_btn;
+            document.getElementById('btn-auth-signup').textContent = l.register_btn;
+            document.getElementById('btn-guest').textContent = l.guest_btn;
+            document.getElementById('auth-error').textContent = "";
+            document.getElementById('auth-desc').textContent = l.loginMsg;
+            document.getElementById('authForm').dataset.reg = "";
+            document.getElementById('authModal').style.display = 'flex';
+        }
+        function hideAuth() { document.getElementById('authModal').style.display = 'none'; }
+        
+        function showNicknameModal() {
+            const l = translations[currentLang] || translations.en;
+            document.getElementById('nickname-title').textContent = l.nickname_title;
+            document.getElementById('nickname-desc').textContent = l.nickname_desc;
+            document.getElementById('btn-nickname-confirm').textContent = l.nickname_confirm;
+            document.getElementById('nickname-error').textContent = "";
+            document.getElementById('nicknameInput').value = "";
+            document.getElementById('nicknameModal').style.display = 'flex';
+        }
+        function hideNicknameModal() { document.getElementById('nicknameModal').style.display = 'none'; }
+
+        function isReadOnly() { return !currentUser && !isGuest; }
+
+        async function updateAuthHeader() {
+            let headerBtnsHtml = "";
+            const l = translations[currentLang] || translations.en;
+            if (!currentUser && !isGuest) {
+            } else {
+                if (currentUser) {
+                    headerBtnsHtml += `<button class="btn-action" onclick="toggleForm()" id="btn-write">${l.write}</button>`;
+                    headerBtnsHtml += `<button class="btn-action" onclick="auth.signOut()">${l.signout}</button>`;
+                }
+            }
+            headerBtnsHtml += `<button class="btn-action" id="btn-lang" onclick="openLang()">${l.langBtn}</button>`;
+            headerBtnsHtml += `<button class="btn-action" onclick="toggleTheme()">◑</button>`;
+            document.getElementById('header-btns').innerHTML = headerBtnsHtml;
+        }
 
         function updateUI() {
-            const t = translations[currentLang];
+            const t = translations[currentLang] || translations.en;
             document.getElementById('gate-text').textContent = t.gate;
             document.getElementById('gate-warning').textContent = t.warning;
             document.getElementById('gate-lang-button').textContent = t.langBtn;
-            document.getElementById('btn-write').textContent = t.write;
             document.getElementById('form-title').textContent = t.title;
             document.getElementById('btn-send').textContent = t.send;
             document.getElementById('btn-cancel').textContent = t.cancel;
@@ -324,43 +448,51 @@
             document.getElementById('btn-up-img').innerHTML = `${t.upImg} <input type="file" id="up-file" multiple accept="image/*" hidden onchange="updateFileStatus('up-file', 'status-img')">`;
             document.getElementById('btn-up-aud').innerHTML = `${t.upAud} <input type="file" id="up-audio" multiple accept="audio/*" hidden onchange="updateFileStatus('up-audio', 'status-aud')">`;
             document.getElementById('lang-title').textContent = t.langTitle;
-            document.getElementById('btn-lang').textContent = t.langBtn;
-            loadPosts();
+            updateAuthHeader();
         }
 
-        function toggleForm() { document.getElementById('postForm').classList.toggle('active'); }
+        const avList = document.getElementById('av-list');
+        for(let i=1; i<=7; i++) { avList.innerHTML += `<img src="img/${i}.jpg" class="av-box ${i===1?'selected':''}" onclick="setAv(this, 'img/${i}.jpg')">`; }
+
+        document.addEventListener('mousemove', e => {
+            const c = document.getElementById('custom-cursor');
+            if(c) { c.style.left = e.clientX+'px'; c.style.top = e.clientY+'px'; c.style.opacity = '1'; }
+        });
+
         function setAv(el, p) { document.querySelectorAll('.av-box').forEach(i => i.classList.remove('selected')); el.classList.add('selected'); activeAv = p; }
-        
         function uploadMainAv(e) {
             const reader = new FileReader();
             reader.onload = (ev) => { activeAv = ev.target.result; document.querySelectorAll('.av-box').forEach(i => i.classList.remove('selected')); };
             reader.readAsDataURL(e.target.files[0]);
         }
-
         function setCommentAv(postId, el, path) { document.querySelectorAll(`.av-comm-${postId}`).forEach(i => i.classList.remove('selected')); if(el) el.classList.add('selected'); commentAvs[postId] = path; }
-        
         function uploadCommAv(postId, e) {
             const reader = new FileReader();
             reader.onload = (ev) => { commentAvs[postId] = ev.target.result; document.querySelectorAll(`.av-comm-${postId}`).forEach(i => i.classList.remove('selected')); };
             reader.readAsDataURL(e.target.files[0]);
         }
-
         function updateFileStatus(inputId, statusId) {
             const input = document.getElementById(inputId);
             const status = document.getElementById(statusId);
-            if(input.files.length > 0) {
-                status.textContent = `Selected: ${input.files.length}`;
-            } else {
-                status.textContent = "";
+            if(input && status) {
+                if(input.files.length > 0) {
+                    status.textContent = `Selected: ${input.files.length}`;
+                } else {
+                    status.textContent = "";
+                }
             }
         }
 
-        function replyTo(postId, name) {
-            const input = document.getElementById(`ci-${postId}`);
-            input.value = `↳ ${name}, ` + input.value;
-            input.focus();
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+        function toggleForm() { 
+            if (isReadOnly()) {
+                showAuth();
+                return;
+            }
+            document.getElementById('postForm').classList.toggle('active'); 
         }
-
+        function showWarning(msg) { const w = document.getElementById('form-warning'); w.textContent = msg; w.style.display = 'block'; }
+        function hideWarning() { document.getElementById('form-warning').style.display = 'none'; }
         async function processFiles(files) {
             let arr = [];
             const limit = Math.min(files.length, 5);
@@ -371,12 +503,105 @@
             return arr;
         }
 
-        function showWarning(msg) { const w = document.getElementById('form-warning'); w.textContent = msg; w.style.display = 'block'; }
-        function hideWarning() { document.getElementById('form-warning').style.display = 'none'; }
+        document.getElementById('btn-auth-login').onclick = async function () {
+            let email = document.getElementById('authEmail').value.trim();
+            let pass = document.getElementById('authPass').value.trim();
+            const errEl = document.getElementById('auth-error');
+            errEl.textContent = "";
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+                hideAuth();
+            } catch (e) {
+                errEl.textContent = (e && e.message) ? e.message : "Auth error!";
+            }
+        };
+        
+        document.getElementById('btn-auth-signup').onclick = async function () {
+            let email = document.getElementById('authEmail').value.trim();
+            let pass = document.getElementById('authPass').value.trim();
+            const errEl = document.getElementById('auth-error');
+            errEl.textContent = "";
+            
+            if (!email || !pass) {
+                errEl.textContent = "Email and password required";
+                return;
+            }
+            
+            try {
+                await auth.createUserWithEmailAndPassword(email, pass);
+                hideAuth();
+                showNicknameModal();
+            } catch (e) {
+                errEl.textContent = (e && e.message) ? e.message : "Registration error!";
+            }
+        };
+
+        document.getElementById('btn-nickname-confirm').onclick = async function () {
+            const nickname = document.getElementById('nicknameInput').value.trim();
+            const errEl = document.getElementById('nickname-error');
+            errEl.textContent = "";
+            
+            if (!nickname) {
+                errEl.textContent = "Nickname is required";
+                return;
+            }
+            
+            if (currentUser) {
+                try {
+                    await db.ref('users/' + currentUser.uid).set({
+                        nickname: nickname,
+                        email: currentUser.email,
+                        createdAt: Date.now()
+                    });
+                    currentUserNickname = nickname;
+                    hideNicknameModal();
+                    updateUI();
+                    loadPosts();
+                } catch (e) {
+                    errEl.textContent = "Error saving nickname";
+                }
+            }
+        };
+
+        document.getElementById('btn-guest').onclick = function() {
+            isGuest = true;
+            currentUser = null;
+            hideAuth();
+            updateUI();
+            loadPosts();
+        };
+
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                currentUser = user;
+                isGuest = false;
+                db.ref('users/' + user.uid).once('value').then(snap => {
+                    if (snap.exists()) {
+                        currentUserNickname = snap.val().nickname;
+                    }
+                    updateUI();
+                    loadPosts();
+                });
+            } else {
+                currentUser = null;
+                currentUserNickname = null;
+            }
+            isAdmin = !!currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL;
+            
+            if (!currentUser && !isGuest && !sessionStorage.getItem('bunker_access')) {
+            } else {
+                hideAuth();
+            }
+            
+            updateUI();
+            loadPosts();
+        });
 
         async function sendPost() {
+            if(isReadOnly()) { showAuth(); return; }
             hideWarning();
-            const n = document.getElementById('userName').value.trim() || "Soldier", t = document.getElementById('userText').value.trim();
+            const n = document.getElementById('userName').value.trim() || currentUserNickname || "Soldier", 
+                  t = document.getElementById('userText').value.trim();
             const fileInput = document.getElementById('up-file');
             const audioInput = document.getElementById('up-audio');
             let images = [], audios = [];
@@ -386,7 +611,8 @@
                 showWarning('Введите текст или добавьте медиа, прежде чем отправлять.');
                 return;
             }
-            db.ref('posts').push({ name: n, message: t, avatar: activeAv, images: images, audio: audios, timestamp: Date.now(), likesCount: 0, dislikesCount: 0 });
+            let userEmail = (currentUser && currentUser.email) ? currentUser.email : '';
+            db.ref('posts').push({ name: n, message: t, avatar: activeAv, images: images, audio: audios, timestamp: Date.now(), likesCount: 0, dislikesCount: 0, userEmail: userEmail });
             toggleForm(); 
             document.getElementById('userText').value = ""; 
             fileInput.value = ""; 
@@ -396,7 +622,9 @@
         }
 
         async function addComment(postId) {
-            const n = document.getElementById(`cn-${postId}`).value.trim() || "Soldier", t = document.getElementById(`ci-${postId}`).value.trim();
+            if(isReadOnly()) { showAuth(); return; }
+            const n = document.getElementById(`cn-${postId}`).value.trim() || currentUserNickname || "Soldier", 
+                  t = document.getElementById(`ci-${postId}`).value.trim();
             const av = commentAvs[postId] || 'img/1.jpg';
             const fileInput = document.getElementById(`file-comm-${postId}`);
             const audioInput = document.getElementById(`aud-comm-${postId}`);
@@ -417,7 +645,14 @@
             if(sAud) sAud.textContent = "";
         }
 
+        function replyTo(postId, name) {
+            const input = document.getElementById(`ci-${postId}`);
+            input.value = `↳ ${name}, ` + input.value;
+            input.focus();
+        }
+
         function toggleLike(id) {
+            if(isReadOnly()) { showAuth(); return; }
             const ref = db.ref(`posts/${id}/likesCount`);
             if (myLikes[id]) { 
                 ref.set(firebase.database.ServerValue.increment(-1)); 
@@ -429,8 +664,8 @@
             }
             localStorage.setItem('myLikes', JSON.stringify(myLikes));
         }
-
         function toggleDislike(id) {
+            if(isReadOnly()) { showAuth(); return; }
             const ref = db.ref(`posts/${id}/dislikesCount`);
             if (myDislikes[id]) {
                 ref.set(firebase.database.ServerValue.increment(-1));
@@ -442,7 +677,6 @@
             }
             localStorage.setItem('myDislikes', JSON.stringify(myDislikes));
         }
-
         function toggleComments(id) { 
             const el = document.getElementById(`comments-${id}`);
             if(el.classList.toggle('active')) openComments.add(id); else openComments.delete(id);
@@ -474,17 +708,9 @@
             aud.currentTime = pct * aud.duration;
         }
 
-        function formatTime(s) {
-            const m = Math.floor(s / 60);
-            const sec = Math.floor(s % 60);
-            return m.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
-        }
-
-        function getUniq() { return 'id' + Date.now() + Math.random().toString(16).slice(2); }
-
         function loadPosts() {
             db.ref('posts').orderByChild('timestamp').on('value', snap => {
-                const f = document.getElementById('feed'), t = translations[currentLang]; f.innerHTML = "";
+                const f = document.getElementById('feed'), t = translations[currentLang] || translations.en; f.innerHTML = "";
                 if (!snap.exists()) return;
                 let data = []; snap.forEach(c => { data.push({id: c.key, ...c.val()}); });
                 data.reverse().forEach((p, index) => {
@@ -494,14 +720,13 @@
                             let isNested = c.text.includes('↳') ? 'comment-nested' : '';
                             let cImgs = ""; 
                             if(c.images) c.images.forEach(img => cImgs += `<img src="${img}" class="post-img">`);
-                            
                             let cAuds = "";
                             if(c.audio) c.audio.forEach(audData => {
                                 const u = getUniq();
                                 cAuds += `<div class="post-audio-container">
                                     <audio id="aud-el-${u}" src="${audData}" ontimeupdate="updateProgress('${u}')" onended="document.getElementById('aud-btn-${u}').textContent='▶'"></audio>
                                     <div class="bunker-player">
-                                        <button class="player-btn" id="aud-btn-${u}" onclick="togglePlay('${u}')">▶</button>
+                                        <button type="button" class="player-btn" id="aud-btn-${u}" onclick="togglePlay('${u}')">▶</button>
                                         <div class="player-progress-container" onclick="setAudioProgress('${u}', event)">
                                             <div class="player-progress-bar" id="aud-bar-${u}"></div>
                                         </div>
@@ -509,7 +734,6 @@
                                     </div>
                                 </div>`;
                             });
-                            
                             cHtml += `<div class="comment-item ${isNested}">
                                 <img src="${c.avatar}" class="comment-av">
                                 <div style="flex:1">
@@ -525,14 +749,13 @@
                     let avsHtml = ""; for(let i=1; i<=7; i++) { avsHtml += `<img src="img/${i}.jpg" class="av-box-small av-comm-${p.id} ${i===1?'selected':''}" onclick="setCommentAv('${p.id}', this, 'img/${i}.jpg')">`; }
                     let pImgs = "";
                     if(p.images) p.images.forEach(img => pImgs += `<img src="${img}" class="post-img">`);
-                    
                     let pAuds = "";
                     if(p.audio) p.audio.forEach(audData => {
                         const u = getUniq();
                         pAuds += `<div class="post-audio-container">
                             <audio id="aud-el-${u}" src="${audData}" ontimeupdate="updateProgress('${u}')" onended="document.getElementById('aud-btn-${u}').textContent='▶'"></audio>
                             <div class="bunker-player">
-                                <button class="player-btn" id="aud-btn-${u}" onclick="togglePlay('${u}')">▶</button>
+                                <button type="button" class="player-btn" id="aud-btn-${u}" onclick="togglePlay('${u}')">▶</button>
                                 <div class="player-progress-container" onclick="setAudioProgress('${u}', event)">
                                     <div class="player-progress-bar" id="aud-bar-${u}"></div>
                                 </div>
@@ -540,8 +763,26 @@
                             </div>
                         </div>`;
                     });
-                    
-                    let ansLabel = cCount > 0 ? `${t.ans}: ${cCount}` : "";
+                    let commentSection = '';
+                    if (!isReadOnly()) {
+                        commentSection = `<div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
+                            <div class="av-selector">
+                                ${avsHtml}
+                                <label class="upload-btn-label" style="margin:0;">${t.upAv}<input type="file" hidden accept="image/*" onchange="uploadCommAv('${p.id}', event)"></label>
+                            </div>
+                            <input type="text" id="cn-${p.id}" placeholder="${t.nick}" style="font-size:0.7rem; padding:5px;">
+                            <textarea id="ci-${p.id}" placeholder="${t.msg}" rows="2" style="font-size:0.75rem;"></textarea>
+                            <div style="display:flex; gap:5px; margin-bottom:8px; align-items:center;">
+                                <label class="upload-btn-label" style="margin:0; font-size:0.6rem;">${t.upImgShort} <input type="file" id="file-comm-${p.id}" multiple accept="image/*" hidden onchange="updateFileStatus('file-comm-${p.id}', 'status-comm-img-${p.id}')"></label>
+                                <span id="status-comm-img-${p.id}" class="file-status"></span>
+                                <label class="upload-btn-label" style="margin:0; font-size:0.6rem;">${t.upAudShort} <input type="file" id="aud-comm-${p.id}" accept="audio/*" hidden onchange="updateFileStatus('aud-comm-${p.id}', 'status-comm-aud-${p.id}')"></label>
+                                <span id="status-comm-aud-${p.id}" class="file-status"></span>
+                            </div>
+                            <button type="button" class="btn-action" onclick="addComment('${p.id}')" style="width:100%;">${t.send}</button>
+                        </div>`;
+                    }
+                    let canDelete = (currentUser && ((p.userEmail && p.userEmail.toLowerCase() === (currentUser.email||'').toLowerCase()) || isAdmin));
+                    let deleteBtn = canDelete ? `<button type="button" class="btn-action" style="padding:4px 8px;font-size:0.6rem;border-color:var(--red);color:var(--red);margin-left:8px;" onclick="deletePost('${p.id}','${p.message?((p.message.length>30?p.message.substr(0,30)+'...':p.message.replace(/'/g,''))):''}')">DEL</button>` : "";
                     f.innerHTML += `<div class="story-card" style="animation-delay: ${index * 0.1}s">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div style="display:flex; align-items:center;"><img src="${p.avatar}" class="avatar-post"><span style="color:var(--accent); font-size:0.95rem;">${p.name}</span></div>
@@ -553,36 +794,62 @@
                         <div style="margin-top:15px; display:flex; gap:15px; align-items:center;">
                             <div onclick="toggleLike('${p.id}')" style="cursor:pointer; font-size:0.8rem; color: ${myLikes[p.id] ? 'var(--accent)' : 'inherit'}">👍 ${p.likesCount || 0}</div>
                             <div onclick="toggleDislike('${p.id}')" style="cursor:pointer; font-size:0.8rem; color: ${myDislikes[p.id] ? 'var(--red)' : 'inherit'}">👎 ${p.dislikesCount || 0}</div>
-                            <button class="btn-action" style="padding:4px 8px; font-size:0.6rem;" onclick="toggleComments('${p.id}')">${t.comms}</button>
-                            <span style="font-size:0.65rem; color:var(--sub);">${ansLabel}</span>
+                            <button type="button" class="btn-action" style="padding:4px 8px; font-size:0.6rem;" onclick="toggleComments('${p.id}')">
+                                ${openComments.has(p.id) ? t.comms : ((cCount > 0 ? t.ans + `: ${cCount}` : t.ans))}
+                            </button>
+                            ${deleteBtn}
                         </div>
                         <div class="comments-section ${openComments.has(p.id) ? 'active' : ''}" id="comments-${p.id}">
                             <div>${cHtml}</div>
-                            <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
-                                <div class="av-selector">
-                                    ${avsHtml}
-                                    <label class="upload-btn-label" style="margin:0;">${t.upAv}<input type="file" hidden accept="image/*" onchange="uploadCommAv('${p.id}', event)"></label>
-                                </div>
-                                <input type="text" id="cn-${p.id}" placeholder="${t.nick}" style="font-size:0.7rem; padding:5px;">
-                                <textarea id="ci-${p.id}" placeholder="${t.msg}" rows="2" style="font-size:0.75rem;"></textarea>
-                                
-                                <div style="display:flex; gap:5px; margin-bottom:8px; align-items:center;">
-                                     <label class="upload-btn-label" style="margin:0; font-size:0.6rem;">${t.upImgShort} <input type="file" id="file-comm-${p.id}" multiple accept="image/*" hidden onchange="updateFileStatus('file-comm-${p.id}', 'status-comm-img-${p.id}')"></label>
-                                     <span id="status-comm-img-${p.id}" class="file-status"></span>
-
-                                     <label class="upload-btn-label" style="margin:0; font-size:0.6rem;">${t.upAudShort} <input type="file" id="aud-comm-${p.id}" accept="audio/*" hidden onchange="updateFileStatus('aud-comm-${p.id}', 'status-comm-aud-${p.id}')"></label>
-                                     <span id="status-comm-aud-${p.id}" class="file-status"></span>
-                                </div>
-
-                                <button class="btn-action" onclick="addComment('${p.id}')" style="width:100%;">${t.send}</button>
-                            </div>
+                            ${commentSection}
                         </div>
                     </div>`;
                 });
             });
         }
-
+        window.deletePost = function(postId, previewMsg) {
+            if(!currentUser) return;
+            if(!isAdmin) {
+                db.ref('posts/' + postId).once('value').then(snap => {
+                    const v = snap.val();
+                    if (!v) return alert("Not found");
+                    if (!v.userEmail || v.userEmail.toLowerCase() !== (currentUser.email||"").toLowerCase()) return alert("Only owner can delete post");
+                    doDelete();
+                });
+            } else {
+                doDelete();
+            }
+            function doDelete() {
+                if (confirm("Delete post '" + (previewMsg||'') + "' ?")) {
+                    db.ref('posts/' + postId).remove().then(() => {
+                    });
+                }
+            }
+        }
+        if (!sessionStorage.getItem('bunker_access')) {
+            document.getElementById('gate-container').style.display = 'block';
+        } else {
+            document.body.classList.add('access-granted');
+        }
+        function startLoading() {
+            document.getElementById('gate-ui').style.display = 'none';
+            document.getElementById('loader-view').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('loader-view').style.display = 'none';
+                document.getElementById('gate-left').style.transform = 'translateX(-100%)';
+                document.getElementById('gate-right').style.transform = 'translateX(100%)';
+                document.body.classList.add('access-granted');
+                setTimeout(() => {
+                    document.getElementById('gate-container').style.display = 'none';
+                    sessionStorage.setItem('bunker_access', 'true');
+                    showAuth();
+                }, 1500);
+            }, 2000);
+        }
         updateUI();
+        loadPosts();
+
+        console.log('BUnker-6 update', "color: #ffcc00; background:black; padding:4px;");
     </script>
 </body>
 </html>
