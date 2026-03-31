@@ -85,6 +85,13 @@
             letter-spacing: 2px;
         }
 
+        #internet-status {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--red); color: #fff; padding: 15px 25px; border-radius: 5px;
+            z-index: 12000; display: none; text-align: center; font-weight: bold;
+            border: 2px solid var(--accent);
+        }
+
         header { 
             background: var(--bg); display: flex; justify-content: space-between; align-items: center; 
             padding: 0 5%; position: sticky; top: 15px; z-index: 1000; 
@@ -177,6 +184,7 @@
 </head>
 <body>
     <div id="custom-cursor"></div>
+    <div id="internet-status"></div>
     <div class="tape-top"></div>
     <div class="tape-side left-t"></div>
     <div class="tape-side right-t"></div>
@@ -196,7 +204,7 @@
         </div>
         <div id="loader-view" style="position: fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index: 11000; display: none; flex-direction: column; align-items: center;">
             <img src="img/gear.png" class="gear-loader">
-            <p style="color: var(--accent); letter-spacing: 3px;">LOADING<span class="animated-dots"></span></p>
+            <p id="loading-text" style="color: var(--accent); letter-spacing: 3px;">LOADING<span class="animated-dots"></span></p>
         </div>
     </div>
 
@@ -292,10 +300,11 @@
                 gate:"ДОСТУП?", write:"+ НОВЫЙ ПОСТ", title:"НОВЫЙ ПОСТ", send:"ОТПРАВИТЬ", cancel:"ОТМЕНА", 
                 nick:"ПОЗЫВНОЙ...", msg:"ТЕКСТ...", comms:"ОТВЕТИТЬ", ans:"ОТВЕТЫ", upAv:"АВАТАР", upImg:"ФОТО (ДО 5)", 
                 upAud:"АУДИО", upImgShort:"ФОТО", upAudShort:"АУДИО", langBtn:"ЯЗЫК", langTitle:"ЯЗЫК", 
-                warning:"Внимание! Сайт стилизован под воен��о-нацистский стиль и может показаться провокационным. Но – нет нацизма!", 
+                warning:"Внимание! Сайт стилизован под военно-нацистский стиль и может показаться провокационным. Но – нет нацизма!", 
                 loginTitle:"Вход на сайт", loginMsg:"Войдите или продолжите как гость.", 
                 signin:"Вход", signout:"Выйти", register:"Регистрация", signin_btn:"ВОЙТИ", register_btn:"ЗАРЕГИСТРИРОВАТЬСЯ",
-                guest_btn:"ПРОДОЛЖИТЬ КАК ГОСТЬ", nickname_title:"Выберите позывной", nickname_desc:"Этот позывной нельзя будет изменить!", nickname_confirm:"ПОДТВЕРДИТЬ"
+                guest_btn:"ПРОДОЛЖИТЬ КАК ГОСТЬ", nickname_title:"Выберите позывной", nickname_desc:"Этот позывной нельзя будет изменить!", nickname_confirm:"ПОДТВЕРДИТЬ",
+                no_internet:"НЕТ СОЕДИНЕНИЯ С ИНТЕРНЕТОМ", loading:"ЗАГРУЗКА", login_btn:"ВОЙТИ"
             },
             en: { 
                 gate:"ACCESS?", write:"+ DISPATCH", title:"NEW RECORD", send:"SEND", cancel:"CANCEL", 
@@ -304,7 +313,8 @@
                 warning:"Warning! The site is styled in a military-Nazi style and may seem provocative. But – no Nazism!", 
                 loginTitle:"Sign in", loginMsg:"Sign in or continue as guest.", 
                 signin:"Sign in", signout:"Sign out", register:"Register", signin_btn:"SIGN IN", register_btn:"REGISTER",
-                guest_btn:"CONTINUE AS GUEST", nickname_title:"Choose Nickname", nickname_desc:"This nickname cannot be changed later!", nickname_confirm:"CONFIRM"
+                guest_btn:"CONTINUE AS GUEST", nickname_title:"Choose Nickname", nickname_desc:"This nickname cannot be changed later!", nickname_confirm:"CONFIRM",
+                no_internet:"NO INTERNET CONNECTION", loading:"LOADING", login_btn:"LOGIN"
             },
             de: {
                 gate:"ZUGANG?", write:"+ NEUER EINTRAG", title:"NEUER EINTRAG", send:"SENDEN", cancel:"ABBRECHEN",
@@ -313,7 +323,8 @@
                 warning:"Warnung! Die Website ist im Militär-Nazi-Stil gestaltet und kann provokativ wirken. Aber – kein Nazismus!",
                 loginTitle:"Anmelden", loginMsg:"Melden Sie sich an oder fahren Sie als Gast fort.",
                 signin:"Anmelden", signout:"Abmelden", register:"Registrieren", signin_btn:"ANMELDEN", register_btn:"REGISTRIEREN",
-                guest_btn:"ALS GAST FORTFAHREN", nickname_title:"Spitznamen wählen", nickname_desc:"Dieser Spitzname kann später nicht geändert werden!", nickname_confirm:"BESTÄTIGEN"
+                guest_btn:"ALS GAST FORTFAHREN", nickname_title:"Spitznamen wählen", nickname_desc:"Dieser Spitzname kann später nicht geändert werden!", nickname_confirm:"BESTÄTIGEN",
+                no_internet:"KEINE INTERNETVERBINDUNG", loading:"WIRD GELADEN", login_btn:"ANMELDEN"
             },
             fr: {
                 gate:"ACCÈS?", write:"+ NOUVEAU POSTE", title:"NOUVEAU POSTE", send:"ENVOYER", cancel:"ANNULER",
@@ -322,7 +333,8 @@
                 warning:"Avertissement! Le site est stylisé dans un style militaire-nazi et peut sembler provocateur. Mais – pas de nazisme!",
                 loginTitle:"Connexion", loginMsg:"Connectez-vous ou continuez en tant qu'invité.",
                 signin:"Connexion", signout:"Déconnexion", register:"S'inscrire", signin_btn:"CONNEXION", register_btn:"S'INSCRIRE",
-                guest_btn:"CONTINUER EN TANT QU'INVITÉ", nickname_title:"Choisir un surnom", nickname_desc:"Ce surnom ne peut pas être modifié plus tard!", nickname_confirm:"CONFIRMER"
+                guest_btn:"CONTINUER EN TANT QU'INVITÉ", nickname_title:"Choisir un surnom", nickname_desc:"Ce surnom ne peut pas être modifié plus tard!", nickname_confirm:"CONFIRMER",
+                no_internet:"PAS DE CONNEXION INTERNET", loading:"CHARGEMENT", login_btn:"CONNEXION"
             },
             es: {
                 gate:"¿ACCESO?", write:"+ NUEVO REGISTRO", title:"NUEVO REGISTRO", send:"ENVIAR", cancel:"CANCELAR",
@@ -331,7 +343,8 @@
                 warning:"¡Advertencia! El sitio tiene un estilo militar-nazi y puede parecer provocador. ¡Pero – sin nazismo!",
                 loginTitle:"Iniciar sesión", loginMsg:"Inicie sesión o continúe como invitado.",
                 signin:"Iniciar sesión", signout:"Cerrar sesión", register:"Registrarse", signin_btn:"INICIAR SESIÓN", register_btn:"REGISTRARSE",
-                guest_btn:"CONTINUAR COMO INVITADO", nickname_title:"Elegir apodo", nickname_desc:"¡Este apodo no se puede cambiar más tarde!", nickname_confirm:"CONFIRMAR"
+                guest_btn:"CONTINUAR COMO INVITADO", nickname_title:"Elegir apodo", nickname_desc:"¡Este apodo no se puede cambiar más tarde!", nickname_confirm:"CONFIRMAR",
+                no_internet:"SIN CONEXIÓN A INTERNET", loading:"CARGANDO", login_btn:"INICIAR SESIÓN"
             },
             it: {
                 gate:"ACCESSO?", write:"+ NUOVO RECORD", title:"NUOVO RECORD", send:"INVIA", cancel:"ANNULLA",
@@ -340,7 +353,8 @@
                 warning:"Avvertenza! Il sito è stilizzato nello stile militare-nazista e può sembrare provocatorio. Ma – niente nazismo!",
                 loginTitle:"Accedi", loginMsg:"Accedi o continua come ospite.",
                 signin:"Accedi", signout:"Esci", register:"Registrati", signin_btn:"ACCEDI", register_btn:"REGISTRATI",
-                guest_btn:"CONTINUA COME OSPITE", nickname_title:"Scegli nickname", nickname_desc:"Questo nickname non può essere cambiato in seguito!", nickname_confirm:"CONFERMA"
+                guest_btn:"CONTINUA COME OSPITE", nickname_title:"Scegli nickname", nickname_desc:"Questo nickname non può essere cambiato in seguito!", nickname_confirm:"CONFERMA",
+                no_internet:"NESSUNA CONNESSIONE INTERNET", loading:"CARICAMENTO", login_btn:"ACCEDI"
             },
             pl: {
                 gate:"DOSTĘP?", write:"+ NOWY WPIS", title:"NOWY WPIS", send:"WYŚLIJ", cancel:"ANULUJ",
@@ -349,7 +363,8 @@
                 warning:"Ostrzeżenie! Witryna ma styl militarno-nazistowski i może wydawać się prowokacyjna. Ale – bez nazizmu!",
                 loginTitle:"Zaloguj się", loginMsg:"Zaloguj się lub kontynuuj jako gość.",
                 signin:"Zaloguj się", signout:"Wyloguj się", register:"Zarejestruj się", signin_btn:"ZALOGUJ SIĘ", register_btn:"ZAREJESTRUJ SIĘ",
-                guest_btn:"KONTYNUUJ JAKO GOŚĆ", nickname_title:"Wybierz pseudonim", nickname_desc:"Ten pseudonim nie może być zmieniony później!", nickname_confirm:"POTWIERDŹ"
+                guest_btn:"KONTYNUUJ JAKO GOŚĆ", nickname_title:"Wybierz pseudonim", nickname_desc:"Ten pseudonim nie może być zmieniony później!", nickname_confirm:"POTWIERDŹ",
+                no_internet:"BRAK POŁĄCZENIA Z INTERNETEM", loading:"ŁADOWANIE", login_btn:"ZALOGUJ SIĘ"
             },
             ua: {
                 gate:"ДОСТУП?", write:"+ НОВИЙ ЗАПИС", title:"НОВИЙ ЗАПИС", send:"НАДІСЛАТИ", cancel:"СКАСУВАТИ",
@@ -358,7 +373,8 @@
                 warning:"Увага! Сайт стилізований під військово-нацистський стиль і може здатися провокаційним. Але – без нацизму!",
                 loginTitle:"Вхід", loginMsg:"Увійдіть або продовжте як гість.",
                 signin:"Вхід", signout:"Вихід", register:"Реєстрація", signin_btn:"ВХІД", register_btn:"РЕЄСТРАЦІЯ",
-                guest_btn:"ПРОДОВЖИТИ ЯК ГІСТЬ", nickname_title:"Виберіть позивний", nickname_desc:"Цей позивний не можна буде змінити пізніше!", nickname_confirm:"ПІДТВЕРДИТИ"
+                guest_btn:"ПРОДОВЖИТИ ЯК ГІСТЬ", nickname_title:"Виберіть позивний", nickname_desc:"Цей позивний не можна буде змінити пізніше!", nickname_confirm:"ПІДТВЕРДИТИ",
+                no_internet:"НЕ ТА ІНТЕРНЕТ", loading:"ЗАВАНТАЖЕННЯ", login_btn:"ВХІД"
             }
         };
 
@@ -371,6 +387,37 @@
         let isAdmin = false;
         let isGuest = false;
         const ADMIN_EMAIL = "axelltseymet@gmail.com";
+
+        function checkInternetConnection() {
+            const statusEl = document.getElementById('internet-status');
+            const l = translations[currentLang] || translations.en;
+            
+            if (!navigator.onLine) {
+                statusEl.textContent = l.no_internet;
+                statusEl.style.display = 'block';
+                playErrorSound();
+            } else {
+                statusEl.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('online', () => {
+            document.getElementById('internet-status').style.display = 'none';
+        });
+
+        window.addEventListener('offline', () => {
+            const statusEl = document.getElementById('internet-status');
+            const l = translations[currentLang] || translations.en;
+            statusEl.textContent = l.no_internet;
+            statusEl.style.display = 'block';
+            playErrorSound();
+        });
+
+        function playErrorSound() {
+            const audio = new Audio('error.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(() => {});
+        }
 
         function setLang(l) {
             currentLang = l;
@@ -417,21 +464,34 @@
         }
         function hideNicknameModal() { document.getElementById('nicknameModal').style.display = 'none'; }
 
-        function isReadOnly() { return !currentUser && !isGuest; }
+        function isReadOnly() { 
+            return !currentUser; 
+        }
 
         async function updateAuthHeader() {
             let headerBtnsHtml = "";
             const l = translations[currentLang] || translations.en;
-            if (!currentUser && !isGuest) {
-            } else {
-                if (currentUser) {
-                    headerBtnsHtml += `<button class="btn-action" onclick="toggleForm()" id="btn-write">${l.write}</button>`;
-                    headerBtnsHtml += `<button class="btn-action" onclick="auth.signOut()">${l.signout}</button>`;
-                }
+
+            if (currentUser) {
+                headerBtnsHtml += `<button class="btn-action" onclick="toggleForm()" id="btn-write">${l.write}</button>`;
+                headerBtnsHtml += `<button class="btn-action" onclick="logoutUser()">${l.signout}</button>`;
+            } else if (isGuest) {
+                headerBtnsHtml += `<button class="btn-action" onclick="showAuth()" id="btn-login">${l.login_btn}</button>`;
             }
+            
             headerBtnsHtml += `<button class="btn-action" id="btn-lang" onclick="openLang()">${l.langBtn}</button>`;
             headerBtnsHtml += `<button class="btn-action" onclick="toggleTheme()">◑</button>`;
             document.getElementById('header-btns').innerHTML = headerBtnsHtml;
+        }
+
+        function logoutUser() {
+            auth.signOut().then(() => {
+                isGuest = true;
+                currentUser = null;
+                currentUserNickname = null;
+                updateUI();
+                loadPosts();
+            });
         }
 
         function updateUI() {
@@ -585,16 +645,11 @@
             } else {
                 currentUser = null;
                 currentUserNickname = null;
+
+                updateUI();
+                loadPosts();
             }
             isAdmin = !!currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL;
-            
-            if (!currentUser && !isGuest && !sessionStorage.getItem('bunker_access')) {
-            } else {
-                hideAuth();
-            }
-            
-            updateUI();
-            loadPosts();
         });
 
         async function sendPost() {
@@ -608,7 +663,9 @@
             if (fileInput.files.length > 0) images = await processFiles(fileInput.files);
             if (audioInput.files.length > 0) audios = await processFiles(audioInput.files);
             if(!t && images.length === 0 && audios.length === 0) {
-                showWarning('Введите текст или добавьте медиа, прежде чем отправлять.');
+                const l = translations[currentLang] || translations.en;
+                const warningText = currentLang === 'ru' ? 'Введите текст или добавьте медиа, прежде чем отправлять.' : 'Please enter text or attach media before sending.';
+                showWarning(warningText);
                 return;
             }
             let userEmail = (currentUser && currentUser.email) ? currentUser.email : '';
@@ -764,7 +821,7 @@
                         </div>`;
                     });
                     let commentSection = '';
-                    if (!isReadOnly()) {
+                    if (currentUser) {
                         commentSection = `<div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
                             <div class="av-selector">
                                 ${avsHtml}
@@ -834,6 +891,8 @@
         function startLoading() {
             document.getElementById('gate-ui').style.display = 'none';
             document.getElementById('loader-view').style.display = 'flex';
+            const l = translations[currentLang] || translations.en;
+            document.getElementById('loading-text').textContent = l.loading + '\u00a0';
             setTimeout(() => {
                 document.getElementById('loader-view').style.display = 'none';
                 document.getElementById('gate-left').style.transform = 'translateX(-100%)';
@@ -848,8 +907,10 @@
         }
         updateUI();
         loadPosts();
+        checkInternetConnection();
 
-        console.log('BUnker-6 update', "color: #ffcc00; background:black; padding:4px;");
+        console.log('BUnker-6 update');
+        //Code by Axell Tseymet
     </script>
 </body>
 </html>
